@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+:root {
+  --background: #e8e8e8;
+  --foreground: #1a1a1a;
+  --muted: #6b6b6b;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Bold condensed headings */
+.font-display {
+  font-family: 'Arial Black', 'Helvetica Neue', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
