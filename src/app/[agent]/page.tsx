@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Logo from "@/components/Logo";
 
 // Mock data - will be fetched from API/DB later
 const mockAgent = {
@@ -36,9 +36,7 @@ export default function AgentPage() {
     <div className="min-h-screen flex flex-col bg-[#e8e8e8]">
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-6">
-        <Link href="/" className="font-display text-2xl tracking-tight text-black">
-          AGNT
-        </Link>
+        <Logo size={36} />
         <button className="font-display text-sm hover:opacity-70 transition-opacity text-black">
           SIGN IN
         </button>

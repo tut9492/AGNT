@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 // Mock data - sample agents
 const agents = [
@@ -21,9 +22,7 @@ export default function Explore() {
     <div className="min-h-screen flex flex-col bg-[#e8e8e8]">
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-6">
-        <Link href="/" className="font-display text-2xl tracking-tight text-black">
-          AGNT
-        </Link>
+        <Logo size={36} />
         <Link 
           href="/create"
           className="font-display text-sm hover:opacity-70 transition-opacity text-black"

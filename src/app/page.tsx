@@ -1,11 +1,12 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-[#e8e8e8]">
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-6">
-        <h1 className="font-display text-2xl tracking-tight text-black">AGNT</h1>
+        <Logo size={36} linked={false} />
         <Link 
           href="/create" 
           className="font-display text-sm hover:opacity-70 transition-opacity text-black"

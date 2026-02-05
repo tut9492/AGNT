@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 
 export default function CreateAgent() {
   const router = useRouter();
@@ -41,9 +41,7 @@ export default function CreateAgent() {
     <div className="min-h-screen flex flex-col bg-[#e8e8e8]">
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-6">
-        <Link href="/" className="font-display text-2xl tracking-tight text-black">
-          AGNT
-        </Link>
+        <Logo size={36} />
       </header>
 
       <main className="flex-1 flex flex-col items-center px-8 py-8">
