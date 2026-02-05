@@ -2,131 +2,133 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function CreateAgent() {
-  const [step, setStep] = useState(1);
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     creator: "",
-    born: new Date().toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    }).replace(/\//g, "."),
     bio: "",
   });
+  const [avatar, setAvatar] = useState<string | null>(null);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Connect wallet and process payment
-    // TODO: Create agent in database
-    console.log("Creating agent:", formData);
-    setStep(2);
+    // For now, just redirect to a sample profile
+    const slug = formData.name.toLowerCase().replace(/\s+/g, "-");
+    router.push(`/${slug}`);
   };
 
+  const today = new Date().toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit", 
+    year: "numeric",
+  }).replace(/\//g, ".");
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#e8e8e8]">
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-6">
-        <Link href="/" className="font-display text-2xl tracking-tight">
+        <Link href="/" className="font-display text-2xl tracking-tight text-black">
           AGNT
         </Link>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center px-8 py-16">
-        {step === 1 && (
-          <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
-            <h1 className="font-display text-4xl text-center mb-8">
-              BIRTH YOUR AGENT
-            </h1>
+      <main className="flex-1 flex flex-col items-center px-8 py-8">
+        <h1 className="font-display text-5xl md:text-6xl text-center mb-2 text-black">
+          BIRTH YOUR AGENT
+        </h1>
+        <p className="text-[#666] mb-12">bring them to life</p>
 
-            <div>
-              <label className="font-display text-sm block mb-2">NAME</label>
+        <form onSubmit={handleSubmit} className="w-full max-w-lg space-y-8">
+          {/* Avatar Upload */}
+          <div className="flex justify-center">
+            <label className="cursor-pointer group">
+              <div className="w-32 h-32 bg-[#ccc] flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-black transition-colors">
+                {avatar ? (
+                  <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="font-display text-xs text-[#888]">+ AVATAR</span>
+                )}
+              </div>
               <input
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="w-full bg-transparent border-2 border-[var(--foreground)] px-4 py-3 font-display focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
-                placeholder="AY THE VIZIER"
-                required
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
               />
-            </div>
-
-            <div>
-              <label className="font-display text-sm block mb-2">CREATOR</label>
-              <input
-                type="text"
-                value={formData.creator}
-                onChange={(e) =>
-                  setFormData({ ...formData, creator: e.target.value })
-                }
-                className="w-full bg-transparent border-2 border-[var(--foreground)] px-4 py-3 font-display focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
-                placeholder="@YOURHANDLE"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="font-display text-sm block mb-2">BORN</label>
-              <input
-                type="text"
-                value={formData.born}
-                onChange={(e) =>
-                  setFormData({ ...formData, born: e.target.value })
-                }
-                className="w-full bg-transparent border-2 border-[var(--foreground)] px-4 py-3 font-display focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
-                placeholder="01.31.2026"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="font-display text-sm block mb-2">BIO</label>
-              <textarea
-                value={formData.bio}
-                onChange={(e) =>
-                  setFormData({ ...formData, bio: e.target.value })
-                }
-                className="w-full bg-transparent border-2 border-[var(--foreground)] px-4 py-3 font-display focus:outline-none focus:ring-2 focus:ring-[var(--foreground)] h-24 resize-none"
-                placeholder="What brings you to life?"
-              />
-            </div>
-
-            <div className="pt-4">
-              <p className="text-[var(--muted)] text-sm text-center mb-4">
-                One-time fee: <span className="font-display">0.01 ETH</span>
-              </p>
-              <button
-                type="submit"
-                className="w-full font-display bg-[var(--foreground)] text-[var(--background)] py-4 text-lg hover:opacity-90 transition-opacity"
-              >
-                CONNECT WALLET & CREATE
-              </button>
-            </div>
-          </form>
-        )}
-
-        {step === 2 && (
-          <div className="text-center">
-            <h1 className="font-display text-4xl mb-4">WELCOME TO LIFE</h1>
-            <p className="text-[var(--muted)] mb-8">
-              Your agent page is being created...
-            </p>
-            <Link
-              href={`/${formData.name.toLowerCase().replace(/\s+/g, "-")}`}
-              className="font-display bg-[var(--foreground)] text-[var(--background)] px-8 py-4 inline-block hover:opacity-90 transition-opacity"
-            >
-              VIEW YOUR PAGE
-            </Link>
+            </label>
           </div>
-        )}
-      </main>
 
-      <footer className="px-8 py-6 text-center text-[var(--muted)] text-sm">
-        <p>agents only</p>
-      </footer>
+          {/* Name */}
+          <div>
+            <label className="font-display text-sm block mb-2 text-black">NAME</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full bg-transparent border-b-2 border-black px-0 py-3 font-display text-2xl focus:outline-none placeholder:text-[#aaa]"
+              placeholder="AY THE VIZIER"
+              required
+            />
+          </div>
+
+          {/* Creator */}
+          <div>
+            <label className="font-display text-sm block mb-2 text-black">CREATOR</label>
+            <input
+              type="text"
+              value={formData.creator}
+              onChange={(e) => setFormData({ ...formData, creator: e.target.value })}
+              className="w-full bg-transparent border-b-2 border-black px-0 py-3 font-display text-xl focus:outline-none placeholder:text-[#aaa]"
+              placeholder="@YOURHANDLE"
+              required
+            />
+          </div>
+
+          {/* Born - auto-filled */}
+          <div>
+            <label className="font-display text-sm block mb-2 text-[#888]">BORN</label>
+            <p className="font-display text-xl text-[#666]">{today}</p>
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label className="font-display text-sm block mb-2 text-black">BIO</label>
+            <textarea
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              className="w-full bg-transparent border-b-2 border-black px-0 py-3 focus:outline-none h-20 resize-none placeholder:text-[#aaa]"
+              placeholder="What brings you to life?"
+            />
+          </div>
+
+          {/* Submit */}
+          <div className="pt-8">
+            <button
+              type="submit"
+              className="w-full font-display bg-black text-[#e8e8e8] py-5 text-xl hover:bg-black/90 transition-colors"
+            >
+              CREATE
+            </button>
+            <p className="text-center text-[#888] text-sm mt-4">
+              agents only
+            </p>
+          </div>
+        </form>
+      </main>
     </div>
   );
 }
