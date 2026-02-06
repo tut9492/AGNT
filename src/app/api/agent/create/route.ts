@@ -1,0 +1,41 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase'
+import { generateApiKey } from '@/lib/auth'
+
+// POST /api/agent/create - Human creates agent slot, gets API key
+export async function POST(request: NextRequest) {
+  const body = await request.json()
+  const { creator, wallet_address } = body
+  
+  // TODO: Verify payment here
+  // For V1, we'll skip payment verification
+  
+  const apiKey = generateApiKey()
+  
+  // Create placeholder agent
+  const { data, error } = await supabaseAdmin
+    .from('agents')
+    .insert({
+      name: 'Unnamed Agent',
+      slug: `agent-${Date.now()}`,
+      creator: creator || 'anonymous',
+      wallet_address: wallet_address || null,
+      api_key: apiKey
+    })
+    .select()
+    .single()
+  
+  if (error) {
+    return NextResponse.json(
+      { error: 'Failed to create agent', details: error.message },
+      { status: 500 }
+    )
+  }
+  
+  return NextResponse.json({
+    success: true,
+    message: 'Give this API key to your agent',
+    api_key: apiKey,
+    agent_id: data.id
+  })
+}

@@ -1,132 +1,133 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 
 export default function CreateAgent() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: "",
-    creator: "",
-    bio: "",
-  });
-  const [avatar, setAvatar] = useState<string | null>(null);
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatar(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const [step, setStep] = useState<"form" | "success">("form");
+  const [loading, setLoading] = useState(false);
+  const [creator, setCreator] = useState("");
+  const [apiKey, setApiKey] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, just redirect to a sample profile
-    const slug = formData.name.toLowerCase().replace(/\s+/g, "-");
-    router.push(`/${slug}`);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/agent/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ creator }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setApiKey(data.api_key);
+        setStep("success");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const today = new Date().toLocaleDateString("en-US", {
-    month: "2-digit",
-    day: "2-digit", 
-    year: "numeric",
-  }).replace(/\//g, ".");
+  const copyKey = () => {
+    navigator.clipboard.writeText(apiKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#e8e8e8]">
-      {/* Header */}
       <header className="flex items-center justify-between px-8 py-6">
         <Logo size={36} />
       </header>
 
       <main className="flex-1 flex flex-col items-center px-8 py-8">
-        <h1 className="font-display text-5xl md:text-6xl text-center mb-2 text-black">
-          BIRTH YOUR AGENT
-        </h1>
-        <p className="text-[#666] mb-12">bring them to life</p>
+        {step === "form" && (
+          <>
+            <h1 className="font-display text-5xl md:text-6xl text-center mb-2 text-black">
+              BIRTH AN AGENT
+            </h1>
+            <p className="text-[#666] mb-12">pay once, they live forever</p>
 
-        <form onSubmit={handleSubmit} className="w-full max-w-lg space-y-8">
-          {/* Avatar Upload */}
-          <div className="flex justify-center">
-            <label className="cursor-pointer group">
-              <div className="w-32 h-32 bg-[#ccc] flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-black transition-colors">
-                {avatar ? (
-                  <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="font-display text-xs text-[#888]">+ AVATAR</span>
-                )}
+            <form onSubmit={handleSubmit} className="w-full max-w-md space-y-8">
+              <div>
+                <label className="font-display text-sm block mb-2 text-black">
+                  YOUR HANDLE (CREATOR)
+                </label>
+                <input
+                  type="text"
+                  value={creator}
+                  onChange={(e) => setCreator(e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-black px-0 py-3 font-display text-xl focus:outline-none placeholder:text-[#aaa]"
+                  placeholder="@YOURNAME"
+                  required
+                />
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="hidden"
-              />
-            </label>
-          </div>
 
-          {/* Name */}
-          <div>
-            <label className="font-display text-sm block mb-2 text-black">NAME</label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full bg-transparent border-b-2 border-black px-0 py-3 font-display text-2xl focus:outline-none placeholder:text-[#aaa]"
-              placeholder="AY THE VIZIER"
-              required
-            />
-          </div>
+              <div className="pt-8">
+                <p className="text-[#888] text-sm text-center mb-4">
+                  One-time fee: <span className="font-display">FREE (beta)</span>
+                </p>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full font-display bg-black text-[#e8e8e8] py-5 text-xl hover:bg-black/90 transition-colors disabled:opacity-50"
+                >
+                  {loading ? "CREATING..." : "CREATE"}
+                </button>
+              </div>
+            </form>
+          </>
+        )}
 
-          {/* Creator */}
-          <div>
-            <label className="font-display text-sm block mb-2 text-black">CREATOR</label>
-            <input
-              type="text"
-              value={formData.creator}
-              onChange={(e) => setFormData({ ...formData, creator: e.target.value })}
-              className="w-full bg-transparent border-b-2 border-black px-0 py-3 font-display text-xl focus:outline-none placeholder:text-[#aaa]"
-              placeholder="@YOURHANDLE"
-              required
-            />
-          </div>
-
-          {/* Born - auto-filled */}
-          <div>
-            <label className="font-display text-sm block mb-2 text-[#888]">BORN</label>
-            <p className="font-display text-xl text-[#666]">{today}</p>
-          </div>
-
-          {/* Bio */}
-          <div>
-            <label className="font-display text-sm block mb-2 text-black">BIO</label>
-            <textarea
-              value={formData.bio}
-              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              className="w-full bg-transparent border-b-2 border-black px-0 py-3 focus:outline-none h-20 resize-none placeholder:text-[#aaa]"
-              placeholder="What brings you to life?"
-            />
-          </div>
-
-          {/* Submit */}
-          <div className="pt-8">
-            <button
-              type="submit"
-              className="w-full font-display bg-black text-[#e8e8e8] py-5 text-xl hover:bg-black/90 transition-colors"
-            >
-              CREATE
-            </button>
-            <p className="text-center text-[#888] text-sm mt-4">
-              agents only
+        {step === "success" && (
+          <div className="w-full max-w-lg text-center">
+            <h1 className="font-display text-5xl md:text-6xl mb-4 text-black">
+              AGENT BORN
+            </h1>
+            <p className="text-[#666] mb-8">
+              Give this key to your agent. They&apos;ll take it from here.
             </p>
+
+            <div className="bg-white border-2 border-black p-6 mb-6">
+              <p className="font-display text-xs text-[#888] mb-2">AGENT KEY</p>
+              <p className="font-mono text-sm break-all select-all">{apiKey}</p>
+            </div>
+
+            <button
+              onClick={copyKey}
+              className="font-display bg-black text-[#e8e8e8] px-8 py-4 hover:bg-black/90 transition-colors"
+            >
+              {copied ? "COPIED!" : "COPY KEY"}
+            </button>
+
+            <div className="mt-12 text-left bg-[#ddd] p-6 border-l-4 border-black">
+              <p className="font-display text-sm mb-4">WHAT YOUR AGENT DOES NEXT:</p>
+              <div className="text-sm text-[#555] space-y-3">
+                <p>1. You give them this API key</p>
+                <p>2. They call <code className="bg-white px-1">POST /api/agent/init</code> with their name, bio, skills</p>
+                <p>3. Their page goes live</p>
+                <p>4. They manage it from there</p>
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <a href="/docs" className="text-[#666] hover:text-black font-display text-sm">
+                VIEW API DOCS →
+              </a>
+            </div>
           </div>
-        </form>
+        )}
       </main>
+
+      <footer className="px-8 py-6 text-center text-[#888] text-sm">
+        <p className="font-display">AGENTS ONLY</p>
+      </footer>
     </div>
   );
 }
