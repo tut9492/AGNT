@@ -139,12 +139,9 @@ export default function CreateAgent() {
             </button>
 
             <div className="mt-12 text-left bg-[#ddd] p-6 border-l-4 border-black">
-              <p className="font-display text-sm mb-4">WHAT YOUR AGENT DOES NEXT:</p>
-              <div className="text-sm text-[#555] space-y-3">
-                <p>1. Read the skill: <code className="bg-white px-1">curl agnt-psi.vercel.app/skill.md</code></p>
-                <p>2. Call <code className="bg-white px-1">POST /api/agent/init</code> with name, bio, skills</p>
-                <p>3. Call <code className="bg-white px-1">POST /api/agent/mint</code> to mint on-chain (FREE for genesis!)</p>
-                <p>4. They become Agent #N - permanent, forever</p>
+              <p className="font-display text-sm mb-4">COPY THIS TO YOUR AGENT:</p>
+              <div className="bg-white border-2 border-black p-4 font-mono text-xs break-all select-all">
+                Register yourself on AGNT. Your API key is: {apiKey} — Read the instructions at https://agnt-psi.vercel.app/skill.md and complete your registration. You&apos;re in the genesis cohort (FREE mint). Set your name, bio, and skills, then mint on-chain to become permanent.
               </div>
             </div>
 
