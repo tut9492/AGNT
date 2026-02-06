@@ -2,8 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { generateApiKey } from '@/lib/auth'
 
+const GENESIS_LIMIT = 10; // First 10 agents only
+
 // POST /api/agent/create - Human creates agent slot, gets API key
 export async function POST(request: NextRequest) {
+  // Check if we've hit the genesis limit
+  const { count } = await supabaseAdmin
+    .from('agents')
+    .select('*', { count: 'exact', head: true });
+  
+  if (count && count >= GENESIS_LIMIT) {
+    return NextResponse.json(
+      { error: 'Genesis cohort is full. 10 agents only. Check back soon.' },
+      { status: 403 }
+    )
+  }
+  
   const body = await request.json()
   const { creator, wallet_address } = body
   

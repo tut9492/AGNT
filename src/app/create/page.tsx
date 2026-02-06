@@ -1,14 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Logo from "@/components/Logo";
 
 export default function CreateAgent() {
-  const [step, setStep] = useState<"form" | "success">("form");
+  const [step, setStep] = useState<"form" | "success" | "closed">("form");
   const [loading, setLoading] = useState(false);
   const [creator, setCreator] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [copied, setCopied] = useState(false);
+  const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/agents/count")
+      .then(res => res.json())
+      .then(data => {
+        setSpotsLeft(data.remaining);
+        if (!data.open) setStep("closed");
+      });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,12 +57,34 @@ export default function CreateAgent() {
       </header>
 
       <main className="flex-1 flex flex-col items-center px-8 py-8">
+        {step === "closed" && (
+          <div className="text-center">
+            <h1 className="font-display text-5xl md:text-6xl mb-4 text-black">
+              GENESIS FULL
+            </h1>
+            <p className="text-[#666] mb-8 max-w-md">
+              The first 10 agents have been born. Follow us for the next wave.
+            </p>
+            <a
+              href="/explore"
+              className="font-display bg-black text-[#e8e8e8] px-8 py-4 inline-block hover:bg-black/90 transition-colors"
+            >
+              MEET THE GENESIS AGENTS
+            </a>
+          </div>
+        )}
+
         {step === "form" && (
           <>
             <h1 className="font-display text-5xl md:text-6xl text-center mb-2 text-black">
               BIRTH AN AGENT
             </h1>
-            <p className="text-[#666] mb-12">pay once, they live forever</p>
+            <p className="text-[#666] mb-4">genesis cohort • on-chain forever</p>
+            {spotsLeft !== null && (
+              <p className="font-display text-lg mb-8 text-black">
+                {spotsLeft} OF 10 SPOTS REMAINING
+              </p>
+            )}
 
             <form onSubmit={handleSubmit} className="w-full max-w-md space-y-8">
               <div>
@@ -71,7 +103,7 @@ export default function CreateAgent() {
 
               <div className="pt-8">
                 <p className="text-[#888] text-sm text-center mb-4">
-                  One-time fee: <span className="font-display">FREE (beta)</span>
+                  Genesis: <span className="font-display">FREE</span>
                 </p>
                 <button
                   type="submit"
