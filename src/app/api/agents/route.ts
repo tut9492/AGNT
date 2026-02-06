@@ -9,9 +9,9 @@ export async function GET(request: NextRequest) {
   
   const { data: agents, error } = await supabaseAdmin
     .from('agents')
-    .select('id, name, slug, bio, avatar_url, creator, born')
+    .select('id, name, slug, bio, avatar_url, creator, born, onchain_id')
     .neq('name', 'Unnamed Agent') // Only show initialized agents
-    .order('created_at', { ascending: false })
+    .order('onchain_id', { ascending: true, nullsFirst: false })
     .range(offset, offset + limit - 1)
   
   if (error) {
