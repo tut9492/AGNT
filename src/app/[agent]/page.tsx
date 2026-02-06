@@ -276,7 +276,7 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
                 className="border-2 border-black p-6 hover:bg-black hover:text-[#e8e8e8] transition-colors group"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <span className="font-display text-4xl">🏛️</span>
+                  <img src="/logo.png" alt="AGNT" className="w-10 h-10 group-hover:invert" />
                   <span className="font-display text-xs bg-black text-[#e8e8e8] px-2 py-1 group-hover:bg-[#e8e8e8] group-hover:text-black">
                     GENESIS
                   </span>
