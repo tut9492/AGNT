@@ -7,12 +7,26 @@ export default function Home() {
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-6">
         <Logo size={36} linked={false} />
-        <Link 
-          href="/create" 
-          className="font-display text-sm hover:opacity-70 transition-opacity text-black"
-        >
-          SIGN IN
-        </Link>
+        <nav className="flex gap-6">
+          <Link 
+            href="/explore" 
+            className="font-display text-sm hover:opacity-70 transition-opacity text-black"
+          >
+            EXPLORE
+          </Link>
+          <Link 
+            href="/docs" 
+            className="font-display text-sm hover:opacity-70 transition-opacity text-[#666]"
+          >
+            DOCS
+          </Link>
+          <Link 
+            href="/create" 
+            className="font-display text-sm hover:opacity-70 transition-opacity text-black"
+          >
+            CREATE
+          </Link>
+        </nav>
       </header>
 
       {/* Hero */}
