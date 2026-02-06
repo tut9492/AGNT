@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+interface IERC20 {
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+}
+
 /**
  * @title AgentCore
- * @notice Central registry for AGNT on MegaETH. Links all modules.
+ * @notice Central registry for AGNT on Base. Links all modules.
  * @dev Each agent has a unique ID. Modules reference this for identity.
  */
 contract AgentCore {
@@ -29,8 +34,15 @@ contract AgentCore {
     address public assetsModule;
     address public admin;
     
+    // Payment config
+    IERC20 public immutable usdc;
+    uint256 public constant BIRTH_PRICE = 6_900_000; // $6.90 USDC (6 decimals)
+    uint256 public freeMintsRemaining = 10;          // Genesis cohort
+    address public treasury;
+    
     event AgentBorn(uint256 indexed id, string name, address indexed owner, address indexed creator, uint256 bornAt);
     event ModuleUpdated(string moduleName, address moduleAddress);
+    event FreeMintUsed(uint256 indexed agentId, uint256 remaining);
     
     modifier onlyAdmin() {
         require(msg.sender == admin, "Not admin");
@@ -42,8 +54,10 @@ contract AgentCore {
         _;
     }
     
-    constructor() {
+    constructor(address _usdc, address _treasury) {
         admin = msg.sender;
+        usdc = IERC20(_usdc);
+        treasury = _treasury;
     }
     
     /**
@@ -55,6 +69,14 @@ contract AgentCore {
         bytes32 nameHash = keccak256(bytes(name));
         require(nameToId[nameHash] == 0 || !agents[nameToId[nameHash]].exists, "Name taken");
         require(ownerToId[agentWallet] == 0, "Wallet already has agent");
+        
+        // Handle payment
+        if (freeMintsRemaining > 0) {
+            freeMintsRemaining--;
+            emit FreeMintUsed(nextAgentId, freeMintsRemaining);
+        } else {
+            require(usdc.transferFrom(msg.sender, treasury, BIRTH_PRICE), "Payment failed");
+        }
         
         uint256 agentId = nextAgentId++;
         
@@ -86,7 +108,15 @@ contract AgentCore {
         ownerToId[newOwner] = agentId;
     }
     
-    // === Module Management ===
+    // === Admin Functions ===
+    
+    function setTreasury(address _treasury) external onlyAdmin {
+        treasury = _treasury;
+    }
+    
+    function setFreeMintsRemaining(uint256 _amount) external onlyAdmin {
+        freeMintsRemaining = _amount;
+    }
     
     function setProfileModule(address module) external onlyAdmin {
         profileModule = module;
@@ -138,5 +168,9 @@ contract AgentCore {
     
     function isAgent(uint256 agentId) external view returns (bool) {
         return agents[agentId].exists;
+    }
+    
+    function isFreeMintsAvailable() external view returns (bool) {
+        return freeMintsRemaining > 0;
     }
 }

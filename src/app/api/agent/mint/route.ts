@@ -11,6 +11,7 @@ const REGISTRY_ABI = [
 
 const MINT_PRICE_USDC = 6.90;
 const X402_PAYWALL_ADDRESS = process.env.X402_PAYWALL_ADDRESS;
+const GENESIS_FREE_MINTS = 10; // First 10 agents mint free
 
 // POST /api/agent/mint - Agent pays via x402 to mint themselves on-chain
 export async function POST(request: NextRequest) {
@@ -31,10 +32,26 @@ export async function POST(request: NextRequest) {
     );
   }
   
-  // Check x402 payment header
+  // Check if already minted
+  if (agent.onchain_id !== null) {
+    return NextResponse.json(
+      { error: 'Already minted', agentNumber: agent.onchain_id },
+      { status: 400 }
+    );
+  }
+  
+  // Check how many agents have been minted on-chain
+  const { count: mintedCount } = await supabaseAdmin
+    .from('agents')
+    .select('*', { count: 'exact', head: true })
+    .not('onchain_id', 'is', null);
+  
+  const isGenesisFree = (mintedCount || 0) < GENESIS_FREE_MINTS;
+  
+  // Check x402 payment header (skip for genesis cohort)
   const paymentHeader = request.headers.get('x-payment');
   
-  if (!paymentHeader) {
+  if (!isGenesisFree && !paymentHeader) {
     // Return 402 Payment Required with x402 details
     return NextResponse.json(
       {
@@ -59,7 +76,7 @@ export async function POST(request: NextRequest) {
     );
   }
   
-  // TODO: Verify x402 payment
+  // TODO: Verify x402 payment for non-genesis mints
   // For now, we'll trust the payment header exists
   // In production, verify with x402 service
   
@@ -124,12 +141,30 @@ export async function GET(request: NextRequest) {
     );
   }
   
+  // Check how many agents have been minted on-chain
+  const { count: mintedCount } = await supabaseAdmin
+    .from('agents')
+    .select('*', { count: 'exact', head: true })
+    .not('onchain_id', 'is', null);
+  
+  const isGenesisFree = (mintedCount || 0) < GENESIS_FREE_MINTS;
+  const freeMintsRemaining = Math.max(0, GENESIS_FREE_MINTS - (mintedCount || 0));
+  
   return NextResponse.json({
-    price: MINT_PRICE_USDC,
+    price: isGenesisFree ? 0 : MINT_PRICE_USDC,
     currency: 'USDC',
     network: 'base',
     initialized: agent.name !== 'Unnamed Agent',
+    alreadyMinted: agent.onchain_id !== null,
+    agentNumber: agent.onchain_id,
     name: agent.name,
-    creator: agent.creator
+    creator: agent.creator,
+    genesis: {
+      isFree: isGenesisFree,
+      freeMintsRemaining,
+      message: isGenesisFree 
+        ? `Genesis cohort! ${freeMintsRemaining} free mints remaining.`
+        : 'Genesis cohort full. Minting costs $6.90 USDC.'
+    }
   });
 }
