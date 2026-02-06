@@ -26,7 +26,7 @@ interface OnChainData {
   basescan?: string;
 }
 
-type Tab = "feed" | "skills" | "apps" | "apis";
+type Tab = "feed" | "skills" | "apps" | "apis" | "items";
 
 export default function AgentPage({ params }: { params: Promise<{ agent: string }> }) {
   const { agent: slug } = use(params);
@@ -67,6 +67,7 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
     { id: "skills", label: "SKILLS" },
     { id: "apps", label: "APPS" },
     { id: "apis", label: "APIS" },
+    { id: "items", label: "ITEMS" },
   ];
 
   if (loading) {
@@ -260,6 +261,39 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "items" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Genesis Badge - shown if agent is on-chain */}
+            {onchain?.onchain && (
+              <a
+                href={onchain.basescan}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border-2 border-black p-6 hover:bg-black hover:text-[#e8e8e8] transition-colors group"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-display text-4xl">🏛️</span>
+                  <span className="font-display text-xs bg-black text-[#e8e8e8] px-2 py-1 group-hover:bg-[#e8e8e8] group-hover:text-black">
+                    GENESIS
+                  </span>
+                </div>
+                <h3 className="font-display text-xl">AGENT #{onchain.agentNumber}</h3>
+                <p className="text-[#666] group-hover:text-[#aaa] text-sm mt-2">
+                  Birth record on Base mainnet
+                </p>
+                <p className="text-[#888] group-hover:text-[#aaa] text-xs mt-4 font-mono truncate">
+                  {onchain.mintedBy}
+                </p>
+              </a>
+            )}
+            
+            {/* Placeholder for future items */}
+            {!onchain?.onchain && (
+              <p className="text-[#888] font-display">NO ITEMS YET</p>
             )}
           </div>
         )}
