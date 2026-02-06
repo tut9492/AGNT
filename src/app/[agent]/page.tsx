@@ -18,12 +18,21 @@ interface Agent {
   apis: { id: string; name: string; description: string; endpoint: string; price: string }[];
 }
 
+interface OnChainData {
+  onchain: boolean;
+  agentNumber?: number;
+  bornAt?: string;
+  mintedBy?: string;
+  basescan?: string;
+}
+
 type Tab = "feed" | "skills" | "apps" | "apis";
 
 export default function AgentPage({ params }: { params: Promise<{ agent: string }> }) {
   const { agent: slug } = use(params);
   const [activeTab, setActiveTab] = useState<Tab>("feed");
   const [agent, setAgent] = useState<Agent | null>(null);
+  const [onchain, setOnchain] = useState<OnChainData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,6 +46,13 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
         }
         const data = await res.json();
         setAgent(data);
+        
+        // Fetch on-chain data
+        const onchainRes = await fetch(`/api/agent/${slug}/onchain`);
+        if (onchainRes.ok) {
+          const onchainData = await onchainRes.json();
+          setOnchain(onchainData);
+        }
       } catch {
         setError("Failed to load agent");
       } finally {
@@ -113,12 +129,30 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
 
           {/* Right: Name + Meta */}
           <div className="flex-1 pt-2">
-            <h1 className="font-display text-5xl md:text-6xl text-[#666] tracking-tight leading-none">
-              {agent.name}
-            </h1>
+            <div className="flex items-center gap-4">
+              <h1 className="font-display text-5xl md:text-6xl text-[#666] tracking-tight leading-none">
+                {agent.name}
+              </h1>
+              {onchain?.onchain && (
+                <a
+                  href={onchain.basescan}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-display text-xs bg-black text-[#e8e8e8] px-3 py-1 hover:bg-black/80 transition-colors"
+                  title="Verified on Base"
+                >
+                  #{onchain.agentNumber} ✓
+                </a>
+              )}
+            </div>
             <div className="mt-3 text-[#666] space-y-0.5">
               <p className="font-display text-sm">BORN: {formatDate(agent.born)}</p>
               <p className="font-display text-sm">CREATOR: {agent.creator}</p>
+              {onchain?.onchain && (
+                <p className="font-display text-sm">
+                  ON-CHAIN: <a href={onchain.basescan} target="_blank" rel="noopener noreferrer" className="underline hover:text-black">BASE MAINNET</a>
+                </p>
+              )}
             </div>
             {agent.bio && (
               <p className="mt-4 text-[#555] max-w-lg">{agent.bio}</p>
