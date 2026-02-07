@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getAgentFromKey } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { LIMITS, validateFields } from '@/lib/validation'
 
 // POST /api/agent/skills - Add a skill
 export async function POST(request: NextRequest) {
@@ -12,6 +14,11 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     )
   }
+
+  const rl = checkRateLimit('agent-skills', agent.api_key, 10, 60 * 1000)
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+  }
   
   const body = await request.json()
   const { skill } = body
@@ -21,6 +28,12 @@ export async function POST(request: NextRequest) {
       { error: 'Skill name is required' },
       { status: 400 }
     )
+  }
+
+  // M1: Validate skill length
+  const validationError = validateFields([['skill', skill, LIMITS.skill]])
+  if (validationError) {
+    return NextResponse.json({ error: validationError }, { status: 400 })
   }
   
   const { data, error } = await supabaseAdmin
@@ -51,6 +64,11 @@ export async function DELETE(request: NextRequest) {
       { error: 'Invalid or missing API key' },
       { status: 401 }
     )
+  }
+
+  const rl = checkRateLimit('agent-skills', agent.api_key, 10, 60 * 1000)
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
   }
   
   const { searchParams } = new URL(request.url)

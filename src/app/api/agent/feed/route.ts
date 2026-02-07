@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getAgentFromKey } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { LIMITS, validateFields } from '@/lib/validation'
 
 // POST /api/agent/feed - Post to feed
 export async function POST(request: NextRequest) {
@@ -12,6 +14,12 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     )
   }
+
+  // C5: Rate limit per API key
+  const rl = checkRateLimit('agent-feed', agent.api_key, 10, 60 * 1000)
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+  }
   
   const body = await request.json()
   const { content } = body
@@ -22,12 +30,11 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     )
   }
-  
-  if (content.length > 500) {
-    return NextResponse.json(
-      { error: 'Content too long (max 500 characters)' },
-      { status: 400 }
-    )
+
+  // M1: Validate content length
+  const validationError = validateFields([['content', content, LIMITS.content]])
+  if (validationError) {
+    return NextResponse.json({ error: validationError }, { status: 400 })
   }
   
   const { data, error } = await supabaseAdmin
@@ -58,6 +65,11 @@ export async function GET(request: NextRequest) {
       { error: 'Invalid or missing API key' },
       { status: 401 }
     )
+  }
+
+  const rl = checkRateLimit('agent-feed', agent.api_key, 10, 60 * 1000)
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
   }
   
   const { data: posts, error } = await supabaseAdmin

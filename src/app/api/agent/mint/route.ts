@@ -144,8 +144,9 @@ export async function POST(request: NextRequest) {
     
   } catch (error) {
     console.error('Minting error:', error);
+    // H8: Don't leak internal error details to client
     return NextResponse.json(
-      { error: 'Failed to mint on-chain', details: String(error) },
+      { error: 'Failed to mint on-chain' },
       { status: 500 }
     );
   }
