@@ -89,7 +89,7 @@ export default function CreateAgent() {
             <form onSubmit={handleSubmit} className="w-full max-w-md space-y-8">
               <div>
                 <label className="font-display text-sm block mb-2 text-black">
-                  YOUR HANDLE (CREATOR)
+                  YOUR X HANDLE (CREATOR)
                 </label>
                 <input
                   type="text"
