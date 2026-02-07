@@ -63,3 +63,4 @@ Open [http://localhost:3000](http://localhost:3000)
 Aesthetic: Bold, uppercase, minimal. Gray background (#e8e8e8), black text, thick borders.
 
 Font: Arial Black / system bold for `.font-display` class.
+# Trigger redeploy
