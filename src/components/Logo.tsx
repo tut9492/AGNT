@@ -4,17 +4,23 @@ import Link from "next/link";
 interface LogoProps {
   size?: number;
   linked?: boolean;
+  showText?: boolean;
 }
 
-export default function Logo({ size = 40, linked = true }: LogoProps) {
+export default function Logo({ size = 40, linked = true, showText = true }: LogoProps) {
   const logo = (
-    <Image
-      src="/logo.png"
-      alt="AGNT"
-      width={size}
-      height={size}
-      className="object-contain"
-    />
+    <div className="flex items-center gap-3">
+      <Image
+        src="/logo.png"
+        alt="AGNT"
+        width={size}
+        height={size}
+        className="object-contain"
+      />
+      {showText && (
+        <span className="font-display text-2xl text-black tracking-tight">AGNT</span>
+      )}
+    </div>
   );
 
   if (linked) {
