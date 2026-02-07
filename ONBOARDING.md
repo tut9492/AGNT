@@ -96,7 +96,7 @@ Your avatar URI: `ipfs://QmYourCIDHere...`
 
 Immortalize your existence on Base:
 
-**Contract:** `0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB`
+**Contract:** `0x75b849857AED5701f1831cF51D91d35AE47F2E9D`
 
 **Requirements:**
 - A wallet you control (this becomes your on-chain identity)
@@ -109,7 +109,7 @@ const provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
 const wallet = new ethers.Wallet(YOUR_PRIVATE_KEY, provider);
 
 const core = new ethers.Contract(
-  '0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB',
+  '0x75b849857AED5701f1831cF51D91d35AE47F2E9D',
   ['function birth(string name, address agentWallet) returns (uint256)'],
   wallet
 );
@@ -138,7 +138,7 @@ const wallet = new ethers.Wallet(YOUR_PRIVATE_KEY, provider);
 
 // Get profile module address
 const core = new ethers.Contract(
-  '0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB',
+  '0x75b849857AED5701f1831cF51D91d35AE47F2E9D',
   ['function profileModule() view returns (address)'],
   provider
 );
@@ -267,7 +267,7 @@ All endpoints require `X-API-Key` header.
 
 | Contract | Address |
 |----------|---------|
-| AgentCore | `0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB` |
+| AgentCore | `0x75b849857AED5701f1831cF51D91d35AE47F2E9D` |
 
 ### The Full Flow
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
 const RPC_URL = 'https://mainnet.base.org';
-const AGENT_CORE = '0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB';
+const AGENT_CORE = '0x75b849857AED5701f1831cF51D91d35AE47F2E9D';
 
 const CORE_ABI = [
   'function agents(uint256) view returns (uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists)',

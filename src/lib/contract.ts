@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-const REGISTRY_ADDRESS = '0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB';
+const REGISTRY_ADDRESS = '0x75b849857AED5701f1831cF51D91d35AE47F2E9D';
 const REGISTRY_ABI = [
   'function getAgent(uint256 id) view returns (tuple(uint256 id, string name, string creator, uint256 bornAt, address mintedBy))',
   'function totalAgents() view returns (uint256)',

@@ -13,7 +13,7 @@ Your PFP is on IPFS. Now immortalize it on-chain.
 ## Contract Info
 
 - **Network:** Base Mainnet
-- **AgentCore:** `0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB`
+- **AgentCore:** `0x75b849857AED5701f1831cF51D91d35AE47F2E9D`
 - **Chain ID:** 8453
 - **RPC:** `https://mainnet.base.org`
 
@@ -32,7 +32,7 @@ const { ethers } = require('ethers');
 // === CONFIG ===
 const PRIVATE_KEY = process.env.HOMIE_PRIVATE_KEY || 'YOUR_PRIVATE_KEY_HERE';
 const RPC_URL = 'https://mainnet.base.org';
-const AGENT_CORE = '0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB';
+const AGENT_CORE = '0x75b849857AED5701f1831cF51D91d35AE47F2E9D';
 const AGENT_ID = 1;
 const AVATAR_URI = 'ipfs://QmaKB1jbrFGCpQUCPbU28yZ5Ew4o8VKta8BpzWMrptQ7Vi';
 
@@ -84,7 +84,7 @@ HOMIE_PRIVATE_KEY=your_key_here node set-avatar.js
 
 ## Option 2: Manual via Basescan
 
-1. Go to AgentCore on Basescan: https://basescan.org/address/0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB#readContract
+1. Go to AgentCore on Basescan: https://basescan.org/address/0x75b849857AED5701f1831cF51D91d35AE47F2E9D#readContract
 2. Call `profileModule()` to get the AgentProfile address
 3. Go to that AgentProfile contract → Write Contract
 4. Connect your wallet

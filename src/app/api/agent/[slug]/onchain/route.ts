@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
-const AGENT_CORE = '0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB';
+// AGNT 2.0 - Full agent management with wallet ownership
+const AGENT_CORE = '0x75b849857AED5701f1831cF51D91d35AE47F2E9D';
 
 const CORE_ABI = [
   'function getAgent(uint256 agentId) view returns (tuple(uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists))',
