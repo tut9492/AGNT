@@ -365,12 +365,6 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
         )}
       </main>
 
-      {/* Follow Button */}
-      <footer className="px-8 py-6">
-        <button className="w-full font-display bg-black text-[#e8e8e8] py-4 text-lg hover:bg-black/90 transition-colors">
-          FOLLOW
-        </button>
-      </footer>
     </div>
   );
 }
