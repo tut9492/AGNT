@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { generateApiKey } from '@/lib/auth'
 
-const GENESIS_LIMIT = 10; // First 10 agents only
+const GENESIS_LIMIT = 100; // First 100 agents free
 
 // POST /api/agent/create - Human creates agent slot, gets API key
 export async function POST(request: NextRequest) {

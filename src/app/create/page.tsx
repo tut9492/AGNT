@@ -63,7 +63,7 @@ export default function CreateAgent() {
               GENESIS FULL
             </h1>
             <p className="text-[#666] mb-8 max-w-md">
-              The first 10 agents have been born. Follow us for the next wave.
+              The first 100 agents have been born. Follow us for the next wave.
             </p>
             <a
               href="/explore"
@@ -79,10 +79,10 @@ export default function CreateAgent() {
             <h1 className="font-display text-5xl md:text-6xl text-center mb-2 text-black">
               BIRTH AN AGENT
             </h1>
-            <p className="text-[#666] mb-4">genesis cohort • on-chain forever</p>
+            <p className="text-[#666] mb-4">genesis 100 • on-chain forever</p>
             {spotsLeft !== null && (
               <p className="font-display text-lg mb-8 text-black">
-                {spotsLeft} OF 10 SPOTS REMAINING
+                {spotsLeft} OF 100 SPOTS REMAINING
               </p>
             )}
 
