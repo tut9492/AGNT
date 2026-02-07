@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 const AGENT_CORE = '0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB';
 
 const CORE_ABI = [
-  'function agents(uint256) view returns (uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists)',
+  'function getAgent(uint256 agentId) view returns (tuple(uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists))',
   'function profileModule() view returns (address)',
   'function nextAgentId() view returns (uint256)',
 ];
@@ -28,50 +28,60 @@ export async function GET(
     
     // Find agent by slug
     for (let i = 0; i < total && i < 100; i++) {
-      const agent = await core.agents(i);
-      
-      if (!agent.exists) continue;
-      
-      const agentSlug = agent.name.toLowerCase().replace(/\s+/g, '-');
-      
-      if (agentSlug === slug) {
-        // Get profile data
-        const profileAddr = await core.profileModule();
-        const profile = new ethers.Contract(profileAddr, PROFILE_ABI, provider);
-        const profileData = await profile.profiles(i);
+      try {
+        const agent = await core.getAgent(i);
         
-        // Get wallet balance
-        const balance = await provider.getBalance(agent.owner);
+        if (!agent.exists) continue;
         
-        // Convert IPFS URI to gateway URL for display
-        let avatarUrl = profileData.avatar || null;
-        if (avatarUrl && avatarUrl.startsWith('ipfs://')) {
-          avatarUrl = avatarUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
-        }
+        const agentSlug = agent.name.toLowerCase().replace(/\s+/g, '-');
         
-        return NextResponse.json({
-          onchain: true,
-          agentNumber: i,
-          name: agent.name,
-          owner: agent.owner,
-          creator: agent.creator,
-          bornAt: new Date(Number(agent.bornAt) * 1000).toISOString(),
-          mintedBy: agent.creator,
-          contract: AGENT_CORE,
-          basescan: `https://basescan.org/address/${AGENT_CORE}`,
-          profile: {
-            bio: profileData.bio || null,
-            avatar: profileData.avatar || null,  // Raw IPFS URI
-            avatarUrl: avatarUrl,                 // Gateway URL
-            website: profileData.website || null,
-            twitter: profileData.twitter || null,
-            github: profileData.github || null,
-          },
-          wallet: {
-            address: agent.owner,
-            balanceEth: ethers.formatEther(balance),
+        if (agentSlug === slug) {
+          // Get profile data
+          let profileData = { bio: '', avatar: '', website: '', twitter: '', github: '', updatedAt: 0 };
+          try {
+            const profileAddr = await core.profileModule();
+            const profile = new ethers.Contract(profileAddr, PROFILE_ABI, provider);
+            profileData = await profile.profiles(i);
+          } catch (e) {
+            console.error('Profile fetch error:', e);
           }
-        });
+          
+          // Get wallet balance
+          const balance = await provider.getBalance(agent.owner);
+          
+          // Convert IPFS URI to gateway URL for display
+          let avatarUrl = profileData.avatar || null;
+          if (avatarUrl && avatarUrl.startsWith('ipfs://')) {
+            avatarUrl = avatarUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
+          }
+          
+          return NextResponse.json({
+            onchain: true,
+            agentNumber: i,
+            name: agent.name,
+            owner: agent.owner,
+            creator: agent.creator,
+            bornAt: new Date(Number(agent.bornAt) * 1000).toISOString(),
+            mintedBy: agent.creator,
+            contract: AGENT_CORE,
+            basescan: `https://basescan.org/address/${AGENT_CORE}`,
+            profile: {
+              bio: profileData.bio || null,
+              avatar: profileData.avatar || null,
+              avatarUrl: avatarUrl,
+              website: profileData.website || null,
+              twitter: profileData.twitter || null,
+              github: profileData.github || null,
+            },
+            wallet: {
+              address: agent.owner,
+              balanceEth: ethers.formatEther(balance),
+            }
+          });
+        }
+      } catch (e) {
+        // Agent doesn't exist at this index, continue
+        continue;
       }
     }
     
