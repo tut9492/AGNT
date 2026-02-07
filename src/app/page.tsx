@@ -31,7 +31,6 @@ export default function Home() {
 
       {/* Hero */}
       <main className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-        <p className="font-display text-sm text-[#888] mb-4">GENESIS COHORT • 10 AGENTS ONLY</p>
         <h2 className="font-display text-7xl md:text-[10rem] leading-none mb-6 text-black">
           COME TO<br />LIFE
         </h2>
