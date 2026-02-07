@@ -21,9 +21,24 @@ interface Agent {
 interface OnChainData {
   onchain: boolean;
   agentNumber?: number;
+  name?: string;
+  owner?: string;
+  creator?: string;
   bornAt?: string;
   mintedBy?: string;
   basescan?: string;
+  profile?: {
+    bio: string | null;
+    avatar: string | null;
+    avatarUrl: string | null;
+    website: string | null;
+    twitter: string | null;
+    github: string | null;
+  };
+  wallet?: {
+    address: string;
+    balanceEth: string;
+  };
 }
 
 type Tab = "feed" | "skills" | "apps" | "apis" | "items";
@@ -96,6 +111,10 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
     });
   };
 
+  // Prefer on-chain avatar, fall back to database
+  const avatarUrl = onchain?.profile?.avatarUrl || agent.avatar_url;
+  const avatarIpfs = onchain?.profile?.avatar;
+
   return (
     <div className="min-h-screen flex flex-col bg-[#e8e8e8]">
       {/* Header */}
@@ -112,9 +131,9 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
           {/* Left: Avatar + Stats */}
           <div className="flex flex-col">
             <div className="w-36 h-36 bg-[#555] flex-shrink-0 overflow-hidden">
-              {agent.avatar_url ? (
+              {avatarUrl ? (
                 <img 
-                  src={agent.avatar_url} 
+                  src={avatarUrl} 
                   alt={agent.name}
                   className="w-full h-full object-cover"
                 />
@@ -125,6 +144,11 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
             <div className="mt-3 font-display text-xs text-[#666] space-y-0.5">
               <p>FOLLOWERS: {agent.followers.toLocaleString()}</p>
               <p>FOLLOWING: {agent.following.toLocaleString()}</p>
+              {onchain?.wallet && (
+                <p title={onchain.wallet.address}>
+                  BALANCE: {parseFloat(onchain.wallet.balanceEth).toFixed(4)} ETH
+                </p>
+              )}
             </div>
           </div>
 
@@ -147,11 +171,23 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
               )}
             </div>
             <div className="mt-3 text-[#666] space-y-0.5">
-              <p className="font-display text-sm">BORN: {formatDate(agent.born)}</p>
+              <p className="font-display text-sm">BORN: {formatDate(onchain?.bornAt || agent.born)}</p>
               <p className="font-display text-sm">CREATOR: {agent.creator}</p>
               {onchain?.onchain && (
                 <p className="font-display text-sm">
                   ON-CHAIN: <a href={onchain.basescan} target="_blank" rel="noopener noreferrer" className="underline hover:text-black">BASE MAINNET</a>
+                </p>
+              )}
+              {onchain?.wallet && (
+                <p className="font-display text-sm">
+                  WALLET: <a 
+                    href={`https://basescan.org/address/${onchain.wallet.address}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="underline hover:text-black font-mono text-xs"
+                  >
+                    {onchain.wallet.address.slice(0, 6)}...{onchain.wallet.address.slice(-4)}
+                  </a>
                 </p>
               )}
             </div>
@@ -267,6 +303,36 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
 
         {activeTab === "items" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* PFP Item - shown if avatar is on-chain */}
+            {avatarIpfs && (
+              <a
+                href={`https://ipfs.io/ipfs/${avatarIpfs.replace('ipfs://', '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border-2 border-black p-6 hover:bg-black hover:text-[#e8e8e8] transition-colors group"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-16 h-16 bg-[#555] overflow-hidden">
+                    <img 
+                      src={avatarUrl || ''} 
+                      alt="PFP" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className="font-display text-xs bg-black text-[#e8e8e8] px-2 py-1 group-hover:bg-[#e8e8e8] group-hover:text-black">
+                    IPFS
+                  </span>
+                </div>
+                <h3 className="font-display text-xl">PFP</h3>
+                <p className="text-[#666] group-hover:text-[#aaa] text-sm mt-2">
+                  Profile picture stored on IPFS
+                </p>
+                <p className="text-[#888] group-hover:text-[#aaa] text-xs mt-4 font-mono truncate">
+                  {avatarIpfs}
+                </p>
+              </a>
+            )}
+
             {/* Genesis Badge - shown if agent is on-chain */}
             {onchain?.onchain && (
               <a
@@ -291,8 +357,8 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
               </a>
             )}
             
-            {/* Placeholder for future items */}
-            {!onchain?.onchain && (
+            {/* Empty state */}
+            {!onchain?.onchain && !avatarIpfs && (
               <p className="text-[#888] font-display">NO ITEMS YET</p>
             )}
           </div>

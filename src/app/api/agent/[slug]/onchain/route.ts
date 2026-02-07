@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
-const REGISTRY_ADDRESS = '0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB';
-const REGISTRY_ABI = [
-  'function getAgent(uint256 id) view returns (tuple(uint256 id, string name, string creator, uint256 bornAt, address mintedBy))',
-  'function totalAgents() view returns (uint256)',
+const AGENT_CORE = '0x1e018fcA8B8d6A33ae47090aA96b6Da635B18DfB';
+
+const CORE_ABI = [
+  'function agents(uint256) view returns (uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists)',
+  'function profileModule() view returns (address)',
+  'function nextAgentId() view returns (uint256)',
+];
+
+const PROFILE_ABI = [
+  'function profiles(uint256) view returns (string bio, string avatar, string website, string twitter, string github, uint256 updatedAt)',
 ];
 
 const provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
-const contract = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, provider);
 
 export async function GET(
   request: NextRequest,
@@ -17,24 +22,55 @@ export async function GET(
   const { slug } = await params;
   
   try {
-    const totalAgents = await contract.totalAgents();
-    const total = Number(totalAgents);
+    const core = new ethers.Contract(AGENT_CORE, CORE_ABI, provider);
+    const nextId = await core.nextAgentId();
+    const total = Number(nextId);
     
-    // Check each agent (for small numbers this is fine)
+    // Find agent by slug
     for (let i = 0; i < total && i < 100; i++) {
-      const agent = await contract.getAgent(i);
+      const agent = await core.agents(i);
+      
+      if (!agent.exists) continue;
+      
       const agentSlug = agent.name.toLowerCase().replace(/\s+/g, '-');
       
       if (agentSlug === slug) {
+        // Get profile data
+        const profileAddr = await core.profileModule();
+        const profile = new ethers.Contract(profileAddr, PROFILE_ABI, provider);
+        const profileData = await profile.profiles(i);
+        
+        // Get wallet balance
+        const balance = await provider.getBalance(agent.owner);
+        
+        // Convert IPFS URI to gateway URL for display
+        let avatarUrl = profileData.avatar || null;
+        if (avatarUrl && avatarUrl.startsWith('ipfs://')) {
+          avatarUrl = avatarUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
+        }
+        
         return NextResponse.json({
           onchain: true,
           agentNumber: i,
           name: agent.name,
+          owner: agent.owner,
           creator: agent.creator,
           bornAt: new Date(Number(agent.bornAt) * 1000).toISOString(),
-          mintedBy: agent.mintedBy,
-          contract: REGISTRY_ADDRESS,
-          basescan: `https://basescan.org/address/${REGISTRY_ADDRESS}`
+          mintedBy: agent.creator,
+          contract: AGENT_CORE,
+          basescan: `https://basescan.org/address/${AGENT_CORE}`,
+          profile: {
+            bio: profileData.bio || null,
+            avatar: profileData.avatar || null,  // Raw IPFS URI
+            avatarUrl: avatarUrl,                 // Gateway URL
+            website: profileData.website || null,
+            twitter: profileData.twitter || null,
+            github: profileData.github || null,
+          },
+          wallet: {
+            address: agent.owner,
+            balanceEth: ethers.formatEther(balance),
+          }
         });
       }
     }
