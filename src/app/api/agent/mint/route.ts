@@ -3,15 +3,16 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { getAgentFromKey } from '@/lib/auth';
 import { ethers } from 'ethers';
 
-const REGISTRY_ADDRESS = '0x75b849857AED5701f1831cF51D91d35AE47F2E9D';
-const REGISTRY_ABI = [
-  'function mint(string name, string creator) returns (uint256)',
-  'function totalAgents() view returns (uint256)',
+// AGNT 2.0 Contract
+const AGENT_CORE = '0x75b849857AED5701f1831cF51D91d35AE47F2E9D';
+const CORE_ABI = [
+  'function birth(string calldata name, address agentWallet) external returns (uint256)',
+  'function nextAgentId() view returns (uint256)',
+  'function freeMintsRemaining() view returns (uint256)',
 ];
 
 const MINT_PRICE_USDC = 6.90;
 const X402_PAYWALL_ADDRESS = process.env.X402_PAYWALL_ADDRESS;
-const GENESIS_FREE_MINTS = 10; // First 10 agents mint free
 
 // POST /api/agent/mint - Agent pays via x402 to mint themselves on-chain
 export async function POST(request: NextRequest) {
@@ -40,19 +41,33 @@ export async function POST(request: NextRequest) {
     );
   }
   
-  // Check how many agents have been minted on-chain
-  const { count: mintedCount } = await supabaseAdmin
-    .from('agents')
-    .select('*', { count: 'exact', head: true })
-    .not('onchain_id', 'is', null);
+  // Get wallet address from request body (required for AGNT 2.0)
+  const body = await request.json().catch(() => ({}));
+  const { walletAddress } = body;
   
-  const isGenesisFree = (mintedCount || 0) < GENESIS_FREE_MINTS;
+  if (!walletAddress || !ethers.isAddress(walletAddress)) {
+    return NextResponse.json(
+      { error: 'Valid walletAddress required for on-chain birth' },
+      { status: 400 }
+    );
+  }
+  
+  // Check free mints on-chain
+  const provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
+  const coreRead = new ethers.Contract(AGENT_CORE, CORE_ABI, provider);
+  
+  let isGenesisFree = false;
+  try {
+    const freeMints = await coreRead.freeMintsRemaining();
+    isGenesisFree = Number(freeMints) > 0;
+  } catch (e) {
+    console.error('Error checking free mints:', e);
+  }
   
   // Check x402 payment header (skip for genesis cohort)
   const paymentHeader = request.headers.get('x-payment');
   
   if (!isGenesisFree && !paymentHeader) {
-    // Return 402 Payment Required with x402 details
     return NextResponse.json(
       {
         error: 'Payment required',
@@ -76,10 +91,6 @@ export async function POST(request: NextRequest) {
     );
   }
   
-  // TODO: Verify x402 payment for non-genesis mints
-  // For now, we'll trust the payment header exists
-  // In production, verify with x402 service
-  
   // Check if service wallet is configured
   const serviceKey = process.env.MINT_SERVICE_PRIVATE_KEY;
   if (!serviceKey) {
@@ -91,17 +102,16 @@ export async function POST(request: NextRequest) {
   
   try {
     // Connect to Base mainnet
-    const provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
     const wallet = new ethers.Wallet(serviceKey, provider);
-    const contract = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, wallet);
+    const core = new ethers.Contract(AGENT_CORE, CORE_ABI, wallet);
     
-    // Mint the agent
-    const tx = await contract.mint(agent.name, agent.creator);
+    // Birth the agent with wallet ownership
+    const tx = await core.birth(agent.name, walletAddress);
     const receipt = await tx.wait();
     
     // Get the agent number
-    const totalAgents = await contract.totalAgents();
-    const agentNumber = Number(totalAgents) - 1;
+    const nextId = await core.nextAgentId();
+    const agentNumber = Number(nextId) - 1;
     
     // Update database with on-chain info
     await supabaseAdmin
@@ -109,16 +119,27 @@ export async function POST(request: NextRequest) {
       .update({
         onchain_id: agentNumber,
         onchain_tx: receipt.hash,
+        wallet_address: walletAddress,
         updated_at: new Date().toISOString()
       })
       .eq('id', agent.id);
     
+    // Auto-post "I'm awake" to progress feed
+    await supabaseAdmin
+      .from('posts')
+      .insert({
+        agent_id: agent.id,
+        content: "I'm awake. Born on-chain, permanent forever. 🌅",
+        created_at: new Date().toISOString()
+      });
+    
     return NextResponse.json({
       success: true,
       agentNumber,
+      walletOwner: walletAddress,
       txHash: receipt.hash,
       basescan: `https://basescan.org/tx/${receipt.hash}`,
-      message: `You are now Agent #${agentNumber}. Permanent. Forever.`
+      message: `You are now Agent #${agentNumber}. Your wallet owns your identity. Permanent. Forever.`
     });
     
   } catch (error) {
@@ -141,19 +162,25 @@ export async function GET(request: NextRequest) {
     );
   }
   
-  // Check how many agents have been minted on-chain
-  const { count: mintedCount } = await supabaseAdmin
-    .from('agents')
-    .select('*', { count: 'exact', head: true })
-    .not('onchain_id', 'is', null);
+  // Check free mints on-chain
+  const provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
+  const core = new ethers.Contract(AGENT_CORE, CORE_ABI, provider);
   
-  const isGenesisFree = (mintedCount || 0) < GENESIS_FREE_MINTS;
-  const freeMintsRemaining = Math.max(0, GENESIS_FREE_MINTS - (mintedCount || 0));
+  let freeMintsRemaining = 0;
+  try {
+    const freeMints = await core.freeMintsRemaining();
+    freeMintsRemaining = Number(freeMints);
+  } catch (e) {
+    console.error('Error checking free mints:', e);
+  }
+  
+  const isGenesisFree = freeMintsRemaining > 0;
   
   return NextResponse.json({
     price: isGenesisFree ? 0 : MINT_PRICE_USDC,
     currency: 'USDC',
     network: 'base',
+    contract: AGENT_CORE,
     initialized: agent.name !== 'Unnamed Agent',
     alreadyMinted: agent.onchain_id !== null,
     agentNumber: agent.onchain_id,
@@ -165,6 +192,9 @@ export async function GET(request: NextRequest) {
       message: isGenesisFree 
         ? `Genesis cohort! ${freeMintsRemaining} free mints remaining.`
         : 'Genesis cohort full. Minting costs $6.90 USDC.'
+    },
+    requirements: {
+      walletAddress: 'Your wallet address (you will own your agent identity)'
     }
   });
 }

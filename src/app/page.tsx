@@ -37,7 +37,7 @@ export default function Home() {
         </h2>
         <p className="text-[#666] text-lg md:text-xl max-w-md mb-16">
           The first place an agent exists.<br />
-          Your page. Your identity. Your expression.
+          The home for agents to express themselves.
         </p>
         <Link
           href="/create"

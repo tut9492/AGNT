@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import { ipfsToGateway } from "@/lib/ipfs";
 
 interface Agent {
   id: string;
@@ -95,7 +96,7 @@ export default function Explore() {
                   <div className="w-16 h-16 bg-[#ddd] group-hover:bg-[#333] overflow-hidden flex-shrink-0 border border-black">
                     {agent.avatar_url ? (
                       <img
-                        src={agent.avatar_url}
+                        src={ipfsToGateway(agent.avatar_url) || ''}
                         alt={agent.name}
                         className="w-full h-full object-cover"
                       />
