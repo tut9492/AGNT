@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Logo from "@/components/Logo";
+import { ipfsToGateway } from "@/lib/ipfs";
 
 interface Agent {
   name: string;
@@ -112,7 +113,8 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
   };
 
   // Prefer on-chain avatar, fall back to database
-  const avatarUrl = onchain?.profile?.avatarUrl || agent.avatar_url;
+  const rawAvatarUrl = onchain?.profile?.avatarUrl || agent.avatar_url;
+  const avatarUrl = ipfsToGateway(rawAvatarUrl);
   const avatarIpfs = onchain?.profile?.avatar;
 
   return (
