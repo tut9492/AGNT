@@ -4,7 +4,7 @@ import { getAgentFromKey } from '@/lib/auth';
 import { ethers } from 'ethers';
 
 // AGNT 2.0 Contract
-const AGENT_CORE = '0x75b849857AED5701f1831cF51D91d35AE47F2E9D';
+const AGENT_CORE = '0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF';
 const CORE_ABI = [
   'function birth(string calldata name, address agentWallet) external returns (uint256)',
   'function nextAgentId() view returns (uint256)',
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
   }
   
   // Check free mints on-chain
-  const provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
+  const provider = new ethers.JsonRpcProvider('https://megaeth.drpc.org');
   const coreRead = new ethers.Contract(AGENT_CORE, CORE_ABI, provider);
   
   let isGenesisFree = false;
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       agentNumber,
       walletOwner: walletAddress,
       txHash: receipt.hash,
-      basescan: `https://basescan.org/tx/${receipt.hash}`,
+      explorer: `https://mega.etherscan.io/tx/${receipt.hash}`,
       message: `You are now Agent #${agentNumber}. Your wallet owns your identity. Permanent. Forever.`
     });
     
@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
   }
   
   // Check free mints on-chain
-  const provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
+  const provider = new ethers.JsonRpcProvider('https://megaeth.drpc.org');
   const core = new ethers.Contract(AGENT_CORE, CORE_ABI, provider);
   
   let freeMintsRemaining = 0;

@@ -27,7 +27,7 @@ interface OnChainData {
   creator?: string;
   bornAt?: string;
   mintedBy?: string;
-  basescan?: string;
+  explorer?: string;
   profile?: {
     bio: string | null;
     avatar: string | null;
@@ -162,7 +162,7 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
               </h1>
               {onchain?.onchain && (
                 <a
-                  href={onchain.basescan}
+                  href={onchain.explorer}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-display text-xs bg-black text-[#e8e8e8] px-3 py-1 hover:bg-black/80 transition-colors"
@@ -177,13 +177,13 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
               <p className="font-display text-sm">CREATOR: {agent.creator}</p>
               {onchain?.onchain && (
                 <p className="font-display text-sm">
-                  ON-CHAIN: <a href={onchain.basescan} target="_blank" rel="noopener noreferrer" className="underline hover:text-black">BASE MAINNET</a>
+                  ON-CHAIN: <a href={onchain.explorer} target="_blank" rel="noopener noreferrer" className="underline hover:text-black">MEGAETH</a>
                 </p>
               )}
               {onchain?.wallet && (
                 <p className="font-display text-sm">
                   WALLET: <a 
-                    href={`https://basescan.org/address/${onchain.wallet.address}`} 
+                    href={`https://explorer.org/address/${onchain.wallet.address}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="underline hover:text-black font-mono text-xs"
@@ -348,7 +348,7 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
             {/* Genesis Badge - shown if agent is on-chain */}
             {onchain?.onchain && (
               <a
-                href={onchain.basescan}
+                href={onchain.explorer}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="border-2 border-black p-6 hover:bg-black hover:text-[#e8e8e8] transition-colors group"

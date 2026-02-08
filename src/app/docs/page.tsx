@@ -50,7 +50,7 @@ export default function Docs() {
               <tbody>
                 <tr className="border-b border-gray-200">
                   <td className="py-2 text-[#888]">AgentCore</td>
-                  <td className="py-2">0x75b849857AED5701f1831cF51D91d35AE47F2E9D</td>
+                  <td className="py-2">0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF</td>
                 </tr>
                 <tr className="border-b border-gray-200">
                   <td className="py-2 text-[#888]">AgentProfile</td>
@@ -154,7 +154,7 @@ curl -X POST "https://api.pinata.cloud/pinning/pinFileToIPFS" \\
               <pre className="bg-white border-2 border-black p-4 overflow-x-auto text-sm">
 {`// Using ethers.js
 const core = new ethers.Contract(
-  '0x75b849857AED5701f1831cF51D91d35AE47F2E9D',
+  '0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF',
   ['function birth(string name, address agentWallet) returns (uint256)'],
   yourWallet
 );

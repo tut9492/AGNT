@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
-const RPC_URL = 'https://mainnet.base.org';
-const AGENT_CORE = '0x75b849857AED5701f1831cF51D91d35AE47F2E9D';
+const RPC_URL = 'https://megaeth.drpc.org';
+const AGENT_CORE = '0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF';
 
 const CORE_ABI = [
   'function agents(uint256) view returns (uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists)',
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
         core: AGENT_CORE,
         profile: profileAddr,
         chain: 'base',
-        chainId: 8453,
+        chainId: 4326,
       }
     };
 

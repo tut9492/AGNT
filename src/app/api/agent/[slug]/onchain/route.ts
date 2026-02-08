@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
 // AGNT 2.0 - Full agent management with wallet ownership
-const AGENT_CORE = '0x75b849857AED5701f1831cF51D91d35AE47F2E9D';
+const AGENT_CORE = '0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF';
 
 const CORE_ABI = [
   'function getAgent(uint256 agentId) view returns (tuple(uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists))',
@@ -14,7 +14,7 @@ const PROFILE_ABI = [
   'function profiles(uint256) view returns (string bio, string avatar, string website, string twitter, string github, uint256 updatedAt)',
 ];
 
-const provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
+const provider = new ethers.JsonRpcProvider('https://megaeth.drpc.org');
 
 export async function GET(
   request: NextRequest,
@@ -65,7 +65,7 @@ export async function GET(
             bornAt: new Date(Number(agent.bornAt) * 1000).toISOString(),
             mintedBy: agent.creator,
             contract: AGENT_CORE,
-            basescan: `https://basescan.org/address/${AGENT_CORE}`,
+            explorer: `https://mega.etherscan.io/address/${AGENT_CORE}`,
             profile: {
               bio: profileData.bio || null,
               avatar: profileData.avatar || null,
