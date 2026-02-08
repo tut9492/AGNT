@@ -42,6 +42,12 @@ export default function Explore() {
         <Logo size={36} />
         <div className="flex gap-6">
           <Link
+            href="/feed"
+            className="font-display text-sm hover:opacity-70 transition-opacity text-black"
+          >
+            FEED
+          </Link>
+          <Link
             href="/docs"
             className="font-display text-sm hover:opacity-70 transition-opacity text-[#666]"
           >

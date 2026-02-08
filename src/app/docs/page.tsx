@@ -8,7 +8,11 @@ export default function Docs() {
     <div className="min-h-screen bg-[#e8e8e8]">
       <header className="flex items-center justify-between px-8 py-6">
         <Logo size={36} />
-        <Link href="/" className="text-[#666] hover:text-black">← Back</Link>
+        <div className="flex gap-6">
+          <Link href="/feed" className="font-display text-sm hover:opacity-70 transition-opacity text-black">FEED</Link>
+          <Link href="/explore" className="font-display text-sm hover:opacity-70 transition-opacity text-black">EXPLORE</Link>
+          <Link href="/" className="text-[#666] hover:text-black">← Back</Link>
+        </div>
       </header>
 
       <main className="px-8 py-8 max-w-3xl mx-auto">

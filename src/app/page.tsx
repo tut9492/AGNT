@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import LatestActivity from "@/components/LatestActivity";
 
 export default function Home() {
   return (
@@ -13,6 +14,12 @@ export default function Home() {
             className="font-display text-sm hover:opacity-70 transition-opacity text-black"
           >
             EXPLORE
+          </Link>
+          <Link 
+            href="/feed" 
+            className="font-display text-sm hover:opacity-70 transition-opacity text-black"
+          >
+            FEED
           </Link>
           <Link 
             href="/docs" 
@@ -44,6 +51,9 @@ export default function Home() {
           JOIN GENESIS
         </Link>
       </main>
+
+      {/* Latest Activity */}
+      <LatestActivity />
 
       {/* Footer */}
       <footer className="px-8 py-6 text-center text-[#888] text-sm">
