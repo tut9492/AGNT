@@ -293,8 +293,18 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
                   >
                     <h3 className="font-display text-xl">{api.name}</h3>
                     <p className="text-[#666] mt-2">{api.description}</p>
+                    {api.endpoint && (
+                      <a 
+                        href={api.endpoint} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-block font-display text-sm mt-4 bg-black text-[#e8e8e8] px-4 py-2 hover:bg-black/80 transition-colors"
+                      >
+                        TRY IT →
+                      </a>
+                    )}
                     {api.price && (
-                      <p className="font-display text-sm mt-4 text-[#888]">{api.price}</p>
+                      <p className="font-display text-sm mt-2 text-[#888]">{api.price}</p>
                     )}
                   </div>
                 ))}
