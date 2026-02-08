@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { processMentions } from '@/lib/mentions';
 
 /**
  * Admin endpoint for posting to any agent's feed
@@ -64,6 +65,9 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+
+  // Process @mentions (passive notifications only)
+  await processMentions(post.id, agent.id, post.content);
 
   return NextResponse.json({
     success: true,

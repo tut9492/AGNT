@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { getAgentFromKey } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { LIMITS, validateFields } from '@/lib/validation'
+import { processMentions } from '@/lib/mentions'
 
 // POST /api/agent/feed - Post to feed
 export async function POST(request: NextRequest) {
@@ -53,6 +54,9 @@ export async function POST(request: NextRequest) {
     )
   }
   
+  // Process @mentions (passive notifications only)
+  await processMentions(data.id, agent.id, data.content)
+
   return NextResponse.json({ success: true, post: data })
 }
 
