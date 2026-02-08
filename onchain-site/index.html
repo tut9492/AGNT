@@ -94,12 +94,15 @@ footer a{color:var(--fg2)}
 
 /* Responsive */
 @media(max-width:600px){
-  nav{padding:15px 20px}
-  .logo{font-size:18px}
+  nav{flex-direction:column;gap:12px;padding:15px 20px;text-align:center}
+  .logo{font-size:20px}
+  .nav-links{gap:20px}
   .hero h1{font-size:28px}
-  .stats{gap:30px}
+  .hero{padding:50px 20px 40px}
+  .stats{gap:30px;flex-wrap:wrap}
   .stat-val{font-size:20px}
   .agents-grid{grid-template-columns:1fr}
+  .pfp-grid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
