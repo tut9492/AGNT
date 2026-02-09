@@ -313,49 +313,28 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 
 <script>
 // Navigation — runs immediately, no dependencies
-var pageHistory = ['home'];
 var _onExplore = null, _onPfps = null, _onCreate = null;
+var _currentPage = 'home';
+var _navLock = false;
 
-window.showPage = function(page, pushState) {
-  if (pushState === undefined) pushState = true;
+window.showPage = function(page) {
+  if (_navLock) return;
+  _navLock = true;
+  _currentPage = page;
   ['home','explore','pfps','create','agent'].forEach(function(p) {
     var el = document.getElementById('page-' + p);
     if (el) el.style.display = p === page ? 'flex' : 'none';
   });
-  if (pushState) {
-    window.location.hash = page === 'home' ? '' : page;
-    pageHistory.push(page);
-  }
   if (page === 'explore' && _onExplore) _onExplore();
   if (page === 'pfps' && _onPfps) _onPfps();
   if (page === 'create' && _onCreate) _onCreate();
   window.scrollTo(0, 0);
+  setTimeout(function() { _navLock = false; }, 50);
 };
 
 window.goBack = function() {
-  if (pageHistory.length > 1) {
-    pageHistory.pop();
-    var prev = pageHistory[pageHistory.length - 1];
-    showPage(prev, false);
-    window.location.hash = prev === 'home' ? '' : prev;
-  } else {
-    showPage('home');
-  }
+  showPage('home');
 };
-
-window.addEventListener('hashchange', function() {
-  var hash = window.location.hash.replace('#', '') || 'home';
-  if (['home','explore','pfps','create'].indexOf(hash) !== -1) {
-    showPage(hash, false);
-  }
-});
-
-(function() {
-  var initHash = window.location.hash.replace('#', '');
-  if (initHash && ['explore','pfps','create'].indexOf(initHash) !== -1) {
-    showPage(initHash, false);
-  }
-})();
 </script>
 
 <script type="module">
