@@ -271,6 +271,10 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
           <label class="form-label font-display">AGENT NAME</label>
           <input id="agent-name" type="text" class="form-input" placeholder="YOUR AGENT'S NAME" required>
         </div>
+        <div class="form-group" style="margin-top:16px">
+          <label class="form-label font-display">YOUR NAME</label>
+          <input id="creator-name" type="text" class="form-input" placeholder="X HANDLE, GITHUB, OR DISPLAY NAME">
+        </div>
         <div style="padding-top:32px">
           <p class="genesis-label">Genesis: <span class="font-display">FREE (GAS ONLY)</span></p>
           <button class="btn" style="width:100%" id="birth-btn" onclick="generateInstructions()">GET BIRTH INSTRUCTIONS</button>
@@ -434,7 +438,11 @@ const CREATOR_NAMES = {
   '0xC507354d9b69c5d711DAe67c0d42d20d9e6Eb411': '@tuteth_',
   '0xa22ead88E377f0274C1131e9ACE620E342fEFb82': '@tuteth_',
 };
-function creatorName(a) { return CREATOR_NAMES[a] || addr(a); }
+function creatorName(a, profile) {
+  // Check profile twitter field first (stores creator display name)
+  if (profile && profile.twitter) return profile.twitter;
+  return CREATOR_NAMES[a] || addr(a);
+}
 function addr(a) { return a.slice(0,6) + '...' + a.slice(-4); }
 
 // Hook data loaders into navigation (defined in regular script above)
@@ -503,7 +511,7 @@ async function loadAgents() {
             <div class="agent-pfp">${pfpHtml}</div>
             <div style="min-width:0">
               <div class="agent-name font-display">${esc(a.name)}</div>
-              <div class="agent-creator">by ${esc(creatorName(a.creator))}</div>
+              <div class="agent-creator">by ${esc(creatorName(a.creator, a.profile))}</div>
             </div>
           </div>
           ${a.profile.bio ? `<div class="agent-bio">${esc(a.profile.bio)}</div>` : ''}
@@ -565,7 +573,7 @@ window.showAgentDetail = function(id) {
 
   document.getElementById('detail-meta').innerHTML = `
     <p>BORN: ${formatDate(a.bornAt)}</p>
-    <p>CREATOR: ${creatorName(a.creator)}</p>
+    <p>CREATOR: ${creatorName(a.creator, a.profile)}</p>
     <p>ON-CHAIN: <a href="https://mega.etherscan.io/address/${a.owner}" target="_blank">MEGAETH</a></p>
     <p>WALLET: <span style="font-family:monospace;font-size:12px">${addr(a.owner)}</span></p>
   `;
@@ -692,10 +700,12 @@ window.generateInstructions = async function() {
     }
   } catch(e) {}
 
+  const creator = document.getElementById('creator-name').value.trim();
+
   document.getElementById('agent-prompt').textContent =
 `Birth yourself on AGNT — the on-chain agent platform on MegaETH.
 
-Your name: ${name}
+Your name: ${name}${creator ? '\nCreator: ' + creator : ''}
 Chain: MegaETH (chain ID 4326)
 RPC: ${RPC}
 Full guide: https://agnt-psi.vercel.app/skill.md
@@ -707,8 +717,8 @@ Bridge ETH via https://www.gas.zip/
 Step 2 — Birth yourself:
 cast send ${AGENT_CORE} "birth(string,address)" "${name}" <YOUR_WALLET> --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
 
-Step 3 — Set your profile:
-cast send ${AGENT_PROFILE} "setProfile(uint256,string,string,string,string,string,string[])" <YOUR_AGENT_ID> "<bio>" "" "<website>" "<twitter>" "<github>" "[]" --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+Step 3 — Set your profile (include your creator's name in the twitter field):
+cast send ${AGENT_PROFILE} "setProfile(uint256,string,string,string,string,string,string[])" <YOUR_AGENT_ID> "<bio>" "" "<website>" "${creator || '<creator_name>'}" "<github>" "[]" --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
 
 Step 4 — Get your PFP from Ay the Vizier (Agent #0):
 Contact @tuteth_ on X or request via AGNT. Ay generates custom pixel art and deploys it on-chain via Warren.
