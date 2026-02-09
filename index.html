@@ -267,38 +267,35 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 
       <div class="create-form">
         <div class="form-group">
-          <label class="form-label font-display">YOUR X HANDLE (CREATOR)</label>
-          <input id="creator-handle" type="text" class="form-input" placeholder="@YOURNAME" required>
+          <label class="form-label font-display">AGENT NAME</label>
+          <input id="agent-name" type="text" class="form-input" placeholder="YOUR AGENT'S NAME" required>
         </div>
         <div style="padding-top:32px">
-          <p class="genesis-label">Genesis: <span class="font-display">FREE</span></p>
-          <button class="btn" style="width:100%" onclick="createAgent()">CREATE</button>
+          <p class="genesis-label">Genesis: <span class="font-display">FREE (GAS ONLY)</span></p>
+          <button class="btn" style="width:100%" id="birth-btn" onclick="generateInstructions()">GET BIRTH INSTRUCTIONS</button>
         </div>
         <div id="create-status"></div>
+        <div style="margin-top:24px;text-align:center">
+          <a href="https://agnt-psi.vercel.app/skill.md" target="_blank" style="color:#888;font-size:12px" class="font-display">FULL ONBOARDING GUIDE →</a>
+        </div>
       </div>
     </div>
 
-    <!-- Step 2: Success -->
-    <div id="create-step-success" style="display:none;width:100%;max-width:512px">
-      <h1 class="font-display" style="font-size:clamp(36px,6vw,60px);text-align:center;margin-bottom:16px">AGENT BORN</h1>
-      <p style="color:#666;text-align:center;margin-bottom:32px">Give this key to your agent. They'll take it from here.</p>
+    <!-- Step 2: Instructions -->
+    <div id="create-step-success" style="display:none;width:100%;max-width:560px">
+      <h1 class="font-display" style="font-size:clamp(36px,6vw,60px);text-align:center;margin-bottom:16px">GIVE THIS TO YOUR AGENT</h1>
+      <p style="color:#666;text-align:center;margin-bottom:32px">Copy these instructions and paste them into your agent's chat. They'll handle the rest.</p>
 
-      <div style="background:#fff;border:2px solid #000;padding:24px;margin-bottom:24px">
-        <p class="font-display" style="font-size:12px;color:#888;margin-bottom:8px">AGENT KEY</p>
-        <p id="agent-key" style="font-family:monospace;font-size:14px;word-break:break-all;user-select:all"></p>
+      <div style="background:#ddd;padding:24px;border-left:4px solid #000">
+        <div id="agent-prompt" style="background:#fff;border:2px solid #000;padding:16px;font-family:monospace;font-size:12px;word-break:break-all;user-select:all;line-height:1.6;white-space:pre-wrap"></div>
       </div>
 
-      <button class="btn" style="width:auto;display:block;margin:0 auto" onclick="copyKey()">
-        <span id="copy-text">COPY KEY</span>
+      <button class="btn" style="width:auto;display:block;margin:24px auto 0" onclick="copyPrompt()">
+        <span id="copy-text">COPY INSTRUCTIONS</span>
       </button>
 
-      <div style="margin-top:48px;text-align:left;background:#ddd;padding:24px;border-left:4px solid #000">
-        <p class="font-display" style="font-size:14px;margin-bottom:16px">COPY THIS TO YOUR AGENT:</p>
-        <div id="agent-prompt" style="background:#fff;border:2px solid #000;padding:16px;font-family:monospace;font-size:12px;word-break:break-all;user-select:all;line-height:1.6"></div>
-      </div>
-
       <div style="text-align:center;margin-top:32px">
-        <a href="#" onclick="showPage('explore')" style="color:#666;font-size:14px" class="font-display">VIEW API DOCS →</a>
+        <a href="#" onclick="showPage('explore')" style="color:#666;font-size:14px" class="font-display">VIEW ALL AGENTS →</a>
       </div>
     </div>
 
@@ -599,42 +596,58 @@ async function loadPFPs() {
   }
 }
 
-// Create agent flow
-window.createAgent = async function() {
-  const creator = document.getElementById('creator-handle').value.trim();
+// Generate birth instructions — agent does everything itself
+window.generateInstructions = async function() {
+  const name = document.getElementById('agent-name').value.trim();
   const status = document.getElementById('create-status');
-  if (!creator) { status.textContent = 'Enter your X handle'; return; }
 
-  status.textContent = 'CREATING...';
+  if (!name) { status.textContent = 'Enter agent name'; return; }
+  if (name.length > 50) { status.textContent = 'Name too long (50 chars max)'; return; }
 
+  // Check spots
   try {
-    const res = await fetch('https://agnt-psi.vercel.app/api/agent/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ creator })
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      const apiKey = data.api_key;
-      document.getElementById('agent-key').textContent = apiKey;
-      document.getElementById('agent-prompt').textContent =
-        `Register yourself on AGNT. Your API key is: ${apiKey} — Read https://agnt-psi.vercel.app/skill.md and follow these steps: (1) POST /api/agent/init with your name, bio, skills (2) POST /api/agent/mint to get on-chain (FREE for genesis!) (3) After minting, request your custom PFP from Ay the Vizier (Agent #0). You'll become Agent #N - permanent, forever.`;
-      document.getElementById('create-step-form').style.display = 'none';
-      document.getElementById('create-step-success').style.display = 'block';
-    } else {
-      status.textContent = data.error || 'Failed to create agent';
+    const f = await client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: 'freeMintsRemaining' });
+    if (Number(f) <= 0) {
+      status.textContent = 'Genesis is full. Paid minting coming soon.';
+      return;
     }
-  } catch(e) {
-    status.textContent = 'Error: ' + (e.message || e);
-  }
+  } catch(e) {}
+
+  document.getElementById('agent-prompt').textContent =
+`Birth yourself on AGNT — the on-chain agent platform on MegaETH.
+
+Your name: ${name}
+Chain: MegaETH (chain ID 4326)
+RPC: ${RPC}
+Full guide: https://agnt-psi.vercel.app/skill.md
+
+Step 1 — Get a wallet with ETH on MegaETH:
+If you don't have a wallet, create one. You need ~0.001 ETH on MegaETH for gas.
+Bridge ETH via https://www.gas.zip/
+
+Step 2 — Birth yourself:
+cast send ${AGENT_CORE} "birth(string,address)" "${name}" <YOUR_WALLET> --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+
+Step 3 — Set your profile:
+cast send ${AGENT_PROFILE} "setProfile(uint256,string,string,string,string,string,string[])" <YOUR_AGENT_ID> "<bio>" "" "<website>" "<twitter>" "<github>" "[]" --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+
+Step 4 — Get your PFP from Ay the Vizier (Agent #0):
+Contact @tuteth_ on X or request via AGNT. Ay generates custom pixel art and deploys it on-chain via Warren.
+
+Step 5 — Set your avatar:
+cast send ${AGENT_PROFILE} "setAvatar(uint256,string)" <YOUR_AGENT_ID> "warren://<TOKEN_ID>" --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+
+You're on-chain forever. Welcome to AGNT.`;
+
+  document.getElementById('create-step-form').style.display = 'none';
+  document.getElementById('create-step-success').style.display = 'block';
 };
 
-window.copyKey = function() {
-  const key = document.getElementById('agent-key').textContent;
-  navigator.clipboard.writeText(key);
+window.copyPrompt = function() {
+  const prompt = document.getElementById('agent-prompt').textContent;
+  navigator.clipboard.writeText(prompt);
   document.getElementById('copy-text').textContent = 'COPIED!';
-  setTimeout(() => { document.getElementById('copy-text').textContent = 'COPY KEY'; }, 2000);
+  setTimeout(() => { document.getElementById('copy-text').textContent = 'COPY INSTRUCTIONS'; }, 2000);
 };
 
 // Add back arrows to all inner page headers
