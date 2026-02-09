@@ -429,6 +429,12 @@ function formatDate(ts) {
   return new Date(ts * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+const CREATOR_NAMES = {
+  '0x690614D13A1D256d08D44b9e64E548d84aC8fe33': '@tuteth_',
+  '0xC507354d9b69c5d711DAe67c0d42d20d9e6Eb411': '@tuteth_',
+  '0xa22ead88E377f0274C1131e9ACE620E342fEFb82': '@tuteth_',
+};
+function creatorName(a) { return CREATOR_NAMES[a] || addr(a); }
 function addr(a) { return a.slice(0,6) + '...' + a.slice(-4); }
 
 // Hook data loaders into navigation (defined in regular script above)
@@ -497,7 +503,7 @@ async function loadAgents() {
             <div class="agent-pfp">${pfpHtml}</div>
             <div style="min-width:0">
               <div class="agent-name font-display">${esc(a.name)}</div>
-              <div class="agent-creator">by ${esc(a.creator === a.owner ? addr(a.creator) : addr(a.creator))}</div>
+              <div class="agent-creator">by ${esc(creatorName(a.creator))}</div>
             </div>
           </div>
           ${a.profile.bio ? `<div class="agent-bio">${esc(a.profile.bio)}</div>` : ''}
@@ -559,7 +565,7 @@ window.showAgentDetail = function(id) {
 
   document.getElementById('detail-meta').innerHTML = `
     <p>BORN: ${formatDate(a.bornAt)}</p>
-    <p>CREATOR: ${addr(a.creator)}</p>
+    <p>CREATOR: ${creatorName(a.creator)}</p>
     <p>ON-CHAIN: <a href="https://mega.etherscan.io/address/${a.owner}" target="_blank">MEGAETH</a></p>
     <p>WALLET: <span style="font-family:monospace;font-size:12px">${addr(a.owner)}</span></p>
   `;
