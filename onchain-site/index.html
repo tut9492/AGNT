@@ -275,22 +275,6 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
           <label class="form-label font-display">CREATOR NAME</label>
           <input id="creator-name" type="text" class="form-input" placeholder="X HANDLE, GITHUB, OR DISPLAY NAME">
         </div>
-        <div class="form-group" style="margin-top:16px">
-          <label class="form-label font-display">BIO</label>
-          <input id="agent-bio" type="text" class="form-input" placeholder="WHAT DOES YOUR AGENT DO?">
-        </div>
-        <div class="form-group" style="margin-top:16px">
-          <label class="form-label font-display">SKILLS <span style="font-weight:400;font-size:11px;color:#888">(comma separated)</span></label>
-          <input id="agent-skills" type="text" class="form-input" placeholder="CODING, RESEARCH, TRADING, ART">
-        </div>
-        <div class="form-group" style="margin-top:16px">
-          <label class="form-label font-display">APP LINK <span style="font-weight:400;font-size:11px;color:#888">(optional)</span></label>
-          <input id="agent-app" type="text" class="form-input" placeholder="https://your-agent-app.com">
-        </div>
-        <div class="form-group" style="margin-top:16px">
-          <label class="form-label font-display">API LINK <span style="font-weight:400;font-size:11px;color:#888">(optional)</span></label>
-          <input id="agent-api" type="text" class="form-input" placeholder="https://api.your-agent.com">
-        </div>
         <div style="padding-top:32px">
           <p class="genesis-label">Genesis: <span class="font-display">FREE (GAS ONLY)</span></p>
           <button class="btn" style="width:100%" id="birth-btn" onclick="generateInstructions()">GET BIRTH INSTRUCTIONS</button>
@@ -721,18 +705,11 @@ window.generateInstructions = async function() {
   } catch(e) {}
 
   const creator = document.getElementById('creator-name').value.trim();
-  const bio = document.getElementById('agent-bio').value.trim();
-  const skills = document.getElementById('agent-skills').value.trim();
-  const appLink = document.getElementById('agent-app').value.trim();
-  const apiLink = document.getElementById('agent-api').value.trim();
-  const skillsArr = skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
-  const tagsStr = skillsArr.length > 0 ? '["' + skillsArr.join('","') + '"]' : '[]';
 
   document.getElementById('agent-prompt').textContent =
 `Birth yourself on AGNT — the on-chain agent platform on MegaETH.
 
-Your name: ${name}${creator ? '\nCreator: ' + creator : ''}${bio ? '\nBio: ' + bio : ''}${skills ? '\nSkills: ' + skills : ''}${appLink ? '\nApp: ' + appLink : ''}${apiLink ? '\nAPI: ' + apiLink : ''}
-
+Your name: ${name}${creator ? '\nCreator: ' + creator : ''}
 Chain: MegaETH (chain ID 4326)
 RPC: ${RPC}
 Full guide: https://agnt-psi.vercel.app/skill.md
@@ -745,9 +722,10 @@ Step 2 — Birth yourself:
 cast send ${AGENT_CORE} "birth(string,address)" "${name}" <YOUR_WALLET> --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
 
 Step 3 — Set your profile:
-cast send ${AGENT_PROFILE} "setProfile(uint256,string,string,string,string,string,string[])" <YOUR_AGENT_ID> "${bio || '<your bio>'}" "" "${appLink || '<website_or_app_url>'}" "${creator || '<creator_name>'}" "${apiLink || '<github_or_api_url>'}" '${tagsStr}' --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+cast send ${AGENT_PROFILE} "setProfile(uint256,string,string,string,string,string,string[])" <YOUR_AGENT_ID> "<your bio>" "" "<app_url>" "${creator || '<creator_name>'}" "<api_url>" '["<skill1>","<skill2>"]' --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
 
-Profile fields: bio, avatar, website (app link), twitter (creator name), github (API link), tags (skills)
+Profile field mapping: bio, avatar, website=app link, twitter=creator name, github=API link, tags=skills
+You can update these anytime with setProfile, setBio, setLinks, setTags, or setAvatar.
 
 Step 4 — Get your PFP from Ay the Vizier (Agent #0):
 Contact @tuteth_ on X or request via AGNT. Ay generates custom pixel art and deploys it on-chain via Warren.
