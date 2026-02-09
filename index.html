@@ -117,9 +117,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:24p
 .loading{animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 
-/* Back link */
-.back-link{font-size:14px;color:#666;cursor:pointer}
-.back-link:hover{color:#000}
+/* Back arrow */
+.back-arrow{font-size:24px;cursor:pointer;color:#000;transition:opacity 0.15s;background:none;border:none;font-family:inherit;padding:0;line-height:1;flex-shrink:0}
+.back-arrow:hover{opacity:0.6}
 
 /* Footer */
 footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
@@ -169,7 +169,7 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
   <header>
     <a href="#" onclick="showPage('home')" class="logo">
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABICAYAAAByQzKvAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAQTSURBVHgB7Z2PVdswEMY/mCAb9DaAEbRB2w3cCWCDeAPoBGknoJ3A6QYwQcwEdIPU9yw/UgO5syVZf5Lfe/cMWImkz+ezJEviAsuy6ow6M519sj9f23M0Stt29tfaY2fP9rjFmf9gUW87azp76Wzvwfi7Kry9KCfDoaj7wDaIfRKwsGv489QptrN5EwokprAfCV0MBn2lYgv7ntBfkDHstXdIT9ix3dmyZgUhTa895s2ECFxgOqazB8z3iqFd+2SPj/Zv7SgdWVvZPK/scS6cx7fOfiFhbjDPg/jhxxfFwO125c9yXP2B+d58i0RZY56wNcLEQELf/t3NKNcaiTHVc0MK+x41pgudjCfzLTml4BwKCMtDmB46DCJD0HceOF0KXsFlmFJmQiT49t5BV1BOd410IEwre5R2srYTwQUkpAdBL/IdFkYbd1MVd4CgF9lgQTSFSl3cAYK+PouEirWiMFEfDjPg54PmwVcjMATd1U62N3QELrPGcYJ6scZ7N1iWvaMd8qBIXwfMX/TeGHHXZwXZO6VQMfZip/wvD76ogizeT7wd9coJHlH7LqRhcSsEoIHsvTHw6cGMxosb3/mTImGFOPgWmKkVn1v5zL9SJCTEIYTAGi++9Zl/IyTaIB4hBGakFkXjM38pUcy3s6EENsLnhtaEc/5GkSi7t7IKNGHCeYTwUvElW/TNm9IYXr4ew8ARFpiENE8oF6luBEdY4CshzRblInkwwREWWIqvJYaHAUlgyflENAK3KJfgzsMze/aKNCUTtP6XOBOUs8CBOQscGBa4FdIQyoWE8y0c0Xhwid3kARLOO7cyWGCpLZjSjB3fBO8DsMDPQpqSBTbCeedhAk0Mdu7NJIxUtxYeYA/VjIuWhmas18ADmnFRg/LQzL9zhkOEZlz0BuXxWTi/hUekaUWlhQmC7L0VPKKJRzXKoYJcX4JnGpyOF+9wvK4NPHHYk/stpB22KMidNXRTxLyjnRhHyBeCboJjMGrIsekB+bJB5GeNxovZcgwVmsWU7L2EwNSKgvBFyGmMgpDIEgJGuz5ukavtAYK+PothIBcoB5EJ+mVci8+/u0feIhP04t4jAlOX0hLSgZ8PU8oerQNFyG8xOLcWslgMPmCgK+xgG8QpNHuhZplW1Lj7EZpFfOPbbo1lmLtnW3Jt+RrTKjAIXSGMR7tshlcjUaZ68jh08C3puimSQR8K5u4yuKjnzpnYxiKxWC5CbdG/RfmD1y292lEasnlwi+DKHq/htp3YV2Qy35lw3pguOOxJ2s5ITLtH5i8KOGSwh6QmLJfJoCBqpCH00nu2LQohntBFC/seFZbbYpybXicj7BiCX7FfkJGoMRa4GPTtWULfvl3h9d8/HNLaI7eXn+3vW7z++4cs+AfZIfC7iCYgMAAAAABJRU5ErkJggg==" alt="AGNT" style="height:36px;width:auto"><span class="font-display" style="font-size:24px">AGNT</span>
-    </a>
+      </a>
     <div class="nav-links">
       <a href="#" onclick="showPage('pfps')" class="font-display">PFPs</a>
       <a href="#" onclick="showPage('create')" class="font-display">CREATE</a>
@@ -333,16 +333,48 @@ function formatDate(ts) {
 
 function addr(a) { return a.slice(0,6) + '...' + a.slice(-4); }
 
-// Pages
-window.showPage = function(page) {
+// Pages + hash routing
+let pageHistory = ['home'];
+
+window.showPage = function(page, pushState = true) {
   ['home','explore','pfps','create','agent'].forEach(p => {
     const el = document.getElementById('page-' + p);
     if (el) el.style.display = p === page ? 'flex' : 'none';
   });
+  if (pushState) {
+    window.location.hash = page === 'home' ? '' : page;
+    pageHistory.push(page);
+  }
   if (page === 'explore' && !loaded) loadAgents();
   if (page === 'pfps') loadPFPs();
   if (page === 'create') loadSpots();
+  window.scrollTo(0, 0);
 };
+
+window.goBack = function() {
+  if (pageHistory.length > 1) {
+    pageHistory.pop();
+    const prev = pageHistory[pageHistory.length - 1];
+    showPage(prev, false);
+    window.location.hash = prev === 'home' ? '' : prev;
+  } else {
+    showPage('home');
+  }
+};
+
+// Handle browser back/forward
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash.replace('#', '') || 'home';
+  if (['home','explore','pfps','create'].includes(hash)) {
+    showPage(hash, false);
+  }
+});
+
+// Load from hash on init
+const initHash = window.location.hash.replace('#', '');
+if (initHash && ['explore','pfps','create'].includes(initHash)) {
+  showPage(initHash, false);
+}
 
 // Stats on home
 async function loadSpots() {
@@ -578,6 +610,15 @@ window.birthAgent = async function() {
     status.textContent = 'Error: ' + (e.message || e);
   }
 };
+
+// Add back arrows to all inner page headers
+document.querySelectorAll('#page-explore header, #page-agent header, #page-pfps header, #page-create header').forEach(h => {
+  const arrow = document.createElement('button');
+  arrow.className = 'back-arrow';
+  arrow.textContent = '←';
+  arrow.onclick = () => goBack();
+  h.insertBefore(arrow, h.firstChild);
+});
 
 // Init
 loadSpots();
