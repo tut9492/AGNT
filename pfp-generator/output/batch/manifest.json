@@ -1,0 +1,283 @@
+[
+  {
+    "id": 0,
+    "filename": "agnt-000.png",
+    "traits": {
+      "palette": "blood",
+      "headShape": "fragmented",
+      "eyeStyle": "glow",
+      "bgStyle": "gradient",
+      "accessories": [
+        "ears",
+        "halo",
+        "goggles"
+      ]
+    }
+  },
+  {
+    "id": 1,
+    "filename": "agnt-001.png",
+    "traits": {
+      "palette": "void",
+      "headShape": "organic",
+      "eyeStyle": "glow",
+      "bgStyle": "noise",
+      "accessories": [
+        "crown"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "filename": "agnt-002.png",
+    "traits": {
+      "palette": "void",
+      "headShape": "block",
+      "eyeStyle": "scanner",
+      "bgStyle": "solid",
+      "accessories": [
+        "chain",
+        "halo"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "filename": "agnt-003.png",
+    "traits": {
+      "palette": "void",
+      "headShape": "fragmented",
+      "eyeStyle": "slits",
+      "bgStyle": "solid",
+      "accessories": [
+        "goggles",
+        "chain",
+        "crown"
+      ]
+    }
+  },
+  {
+    "id": 4,
+    "filename": "agnt-004.png",
+    "traits": {
+      "palette": "void",
+      "headShape": "organic",
+      "eyeStyle": "hollow",
+      "bgStyle": "solid",
+      "accessories": [
+        "ears",
+        "chain",
+        "horns"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "filename": "agnt-005.png",
+    "traits": {
+      "palette": "ghost",
+      "headShape": "skull",
+      "eyeStyle": "dots",
+      "bgStyle": "grid",
+      "accessories": [
+        "halo"
+      ]
+    }
+  },
+  {
+    "id": 6,
+    "filename": "agnt-006.png",
+    "traits": {
+      "palette": "ghost",
+      "headShape": "angular",
+      "eyeStyle": "hollow",
+      "bgStyle": "gradient",
+      "accessories": [
+        "goggles",
+        "ears"
+      ]
+    }
+  },
+  {
+    "id": 7,
+    "filename": "agnt-007.png",
+    "traits": {
+      "palette": "ghost",
+      "headShape": "organic",
+      "eyeStyle": "dots",
+      "bgStyle": "grid",
+      "accessories": [
+        "ears",
+        "mask"
+      ]
+    }
+  },
+  {
+    "id": 8,
+    "filename": "agnt-008.png",
+    "traits": {
+      "palette": "ghost",
+      "headShape": "skull",
+      "eyeStyle": "hollow",
+      "bgStyle": "gradient",
+      "accessories": [
+        "ears"
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "filename": "agnt-009.png",
+    "traits": {
+      "palette": "gold",
+      "headShape": "angular",
+      "eyeStyle": "dots",
+      "bgStyle": "noise",
+      "accessories": [
+        "goggles"
+      ]
+    }
+  },
+  {
+    "id": 10,
+    "filename": "agnt-010.png",
+    "traits": {
+      "palette": "gold",
+      "headShape": "block",
+      "eyeStyle": "hollow",
+      "bgStyle": "grid",
+      "accessories": [
+        "crown"
+      ]
+    }
+  },
+  {
+    "id": 11,
+    "filename": "agnt-011.png",
+    "traits": {
+      "palette": "gold",
+      "headShape": "fragmented",
+      "eyeStyle": "glow",
+      "bgStyle": "grid",
+      "accessories": [
+        "ears"
+      ]
+    }
+  },
+  {
+    "id": 12,
+    "filename": "agnt-012.png",
+    "traits": {
+      "palette": "gold",
+      "headShape": "angular",
+      "eyeStyle": "scanner",
+      "bgStyle": "gradient",
+      "accessories": [
+        "goggles",
+        "chain",
+        "crown"
+      ]
+    }
+  },
+  {
+    "id": 13,
+    "filename": "agnt-013.png",
+    "traits": {
+      "palette": "gold",
+      "headShape": "block",
+      "eyeStyle": "glow",
+      "bgStyle": "solid",
+      "accessories": [
+        "ears"
+      ]
+    }
+  },
+  {
+    "id": 14,
+    "filename": "agnt-014.png",
+    "traits": {
+      "palette": "cyber",
+      "headShape": "fragmented",
+      "eyeStyle": "xEyes",
+      "bgStyle": "solid",
+      "accessories": [
+        "goggles",
+        "ears",
+        "chain"
+      ]
+    }
+  },
+  {
+    "id": 15,
+    "filename": "agnt-015.png",
+    "traits": {
+      "palette": "cyber",
+      "headShape": "organic",
+      "eyeStyle": "xEyes",
+      "bgStyle": "grid",
+      "accessories": [
+        "goggles",
+        "chain",
+        "crown"
+      ]
+    }
+  },
+  {
+    "id": 16,
+    "filename": "agnt-016.png",
+    "traits": {
+      "palette": "cyber",
+      "headShape": "block",
+      "eyeStyle": "hollow",
+      "bgStyle": "noise",
+      "accessories": [
+        "halo",
+        "chain",
+        "goggles"
+      ]
+    }
+  },
+  {
+    "id": 17,
+    "filename": "agnt-017.png",
+    "traits": {
+      "palette": "cyber",
+      "headShape": "fragmented",
+      "eyeStyle": "dots",
+      "bgStyle": "gradient",
+      "accessories": [
+        "halo",
+        "mask",
+        "chain"
+      ]
+    }
+  },
+  {
+    "id": 18,
+    "filename": "agnt-018.png",
+    "traits": {
+      "palette": "grey",
+      "headShape": "organic",
+      "eyeStyle": "hollow",
+      "bgStyle": "gradient",
+      "accessories": [
+        "horns"
+      ]
+    }
+  },
+  {
+    "id": 19,
+    "filename": "agnt-019.png",
+    "traits": {
+      "palette": "grey",
+      "headShape": "skull",
+      "eyeStyle": "xEyes",
+      "bgStyle": "gradient",
+      "accessories": [
+        "horns",
+        "chain",
+        "halo"
+      ]
+    }
+  }
+]

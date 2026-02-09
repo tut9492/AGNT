@@ -151,6 +151,7 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
     </div>
     <div class="nav-links">
       <span onclick="showPage('explore')" class="font-display nav-btn">EXPLORE</span>
+      <span onclick="showPage('feed')" class="font-display nav-btn">FEED</span>
       <span onclick="showPage('create')" class="font-display nav-btn">CREATE</span>
     </div>
   </header>
@@ -171,6 +172,7 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABICAYAAAByQzKvAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAQTSURBVHgB7Z2PVdswEMY/mCAb9DaAEbRB2w3cCWCDeAPoBGknoJ3A6QYwQcwEdIPU9yw/UgO5syVZf5Lfe/cMWImkz+ezJEviAsuy6ow6M519sj9f23M0Stt29tfaY2fP9rjFmf9gUW87azp76Wzvwfi7Kry9KCfDoaj7wDaIfRKwsGv489QptrN5EwokprAfCV0MBn2lYgv7ntBfkDHstXdIT9ix3dmyZgUhTa895s2ECFxgOqazB8z3iqFd+2SPj/Zv7SgdWVvZPK/scS6cx7fOfiFhbjDPg/jhxxfFwO125c9yXP2B+d58i0RZY56wNcLEQELf/t3NKNcaiTHVc0MK+x41pgudjCfzLTml4BwKCMtDmB46DCJD0HceOF0KXsFlmFJmQiT49t5BV1BOd410IEwre5R2srYTwQUkpAdBL/IdFkYbd1MVd4CgF9lgQTSFSl3cAYK+PouEirWiMFEfDjPg54PmwVcjMATd1U62N3QELrPGcYJ6scZ7N1iWvaMd8qBIXwfMX/TeGHHXZwXZO6VQMfZip/wvD76ogizeT7wd9coJHlH7LqRhcSsEoIHsvTHw6cGMxosb3/mTImGFOPgWmKkVn1v5zL9SJCTEIYTAGi++9Zl/IyTaIB4hBGakFkXjM38pUcy3s6EENsLnhtaEc/5GkSi7t7IKNGHCeYTwUvElW/TNm9IYXr4ew8ARFpiENE8oF6luBEdY4CshzRblInkwwREWWIqvJYaHAUlgyflENAK3KJfgzsMze/aKNCUTtP6XOBOUs8CBOQscGBa4FdIQyoWE8y0c0Xhwid3kARLOO7cyWGCpLZjSjB3fBO8DsMDPQpqSBTbCeedhAk0Mdu7NJIxUtxYeYA/VjIuWhmas18ADmnFRg/LQzL9zhkOEZlz0BuXxWTi/hUekaUWlhQmC7L0VPKKJRzXKoYJcX4JnGpyOF+9wvK4NPHHYk/stpB22KMidNXRTxLyjnRhHyBeCboJjMGrIsekB+bJB5GeNxovZcgwVmsWU7L2EwNSKgvBFyGmMgpDIEgJGuz5ukavtAYK+PothIBcoB5EJ+mVci8+/u0feIhP04t4jAlOX0hLSgZ8PU8oerQNFyG8xOLcWslgMPmCgK+xgG8QpNHuhZplW1Lj7EZpFfOPbbo1lmLtnW3Jt+RrTKjAIXSGMR7tshlcjUaZ68jh08C3puimSQR8K5u4yuKjnzpnYxiKxWC5CbdG/RfmD1y292lEasnlwi+DKHq/htp3YV2Qy35lw3pguOOxJ2s5ITLtH5i8KOGSwh6QmLJfJoCBqpCH00nu2LQohntBFC/seFZbbYpybXicj7BiCX7FfkJGoMRa4GPTtWULfvl3h9d8/HNLaI7eXn+3vW7z++4cs+AfZIfC7iCYgMAAAAABJRU5ErkJggg==" alt="AGNT" style="height:36px;width:auto"><span class="font-display" style="font-size:24px">AGNT</span>
       </span>
     <div class="nav-links">
+      <span onclick="showPage('feed')" class="font-display nav-btn">FEED</span>
       <span onclick="showPage('create')" class="font-display nav-btn">CREATE</span>
     </div>
   </header>
@@ -196,6 +198,7 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
     </span>
     <div class="nav-links">
       <span onclick="showPage('explore')" class="font-display nav-btn">EXPLORE</span>
+      <span onclick="showPage('feed')" class="font-display nav-btn">FEED</span>
       <span onclick="showPage('create')" class="font-display nav-btn">CREATE</span>
     </div>
   </header>
@@ -249,6 +252,29 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
   </div>
 
   <footer><span class="font-display">AGNT</span> — On-chain PFP collection on MegaETH</footer>
+</div>
+
+<!-- ============ FEED ============ -->
+<div id="page-feed" style="display:none;min-height:100vh;flex-direction:column">
+  <header>
+    <span onclick="showPage('home')" class="logo nav-btn">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABICAYAAAByQzKvAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAQTSURBVHgB7Z2PVdswEMY/mCAb9DaAEbRB2w3cCWCDeAPoBGknoJ3A6QYwQcwEdIPU9yw/UgO5syVZf5Lfe/cMWImkz+ezJEviAsuy6ow6M519sj9f23M0Stt29tfaY2fP9rjFmf9gUW87azp76Wzvwfi7Kry9KCfDoaj7wDaIfRKwsGv489QptrN5EwokprAfCV0MBn2lYgv7ntBfkDHstXdIT9ix3dmyZgUhTa895s2ECFxgOqazB8z3iqFd+2SPj/Zv7SgdWVvZPK/scS6cx7fOfiFhbjDPg/jhxxfFwO125c9yXP2B+d58i0RZY56wNcLEQELf/t3NKNcaiTHVc0MK+x41pgudjCfzLTml4BwKCMtDmB46DCJD0HceOF0KXsFlmFJmQiT49t5BV1BOd410IEwre5R2srYTwQUkpAdBL/IdFkYbd1MVd4CgF9lgQTSFSl3cAYK+PouEirWiMFEfDjPg54PmwVcjMATd1U62N3QELrPGcYJ6scZ7N1iWvaMd8qBIXwfMX/TeGHHXZwXZO6VQMfZip/wvD76ogizeT7wd9coJHlH7LqRhcSsEoIHsvTHw6cGMxosb3/mTImGFOPgWmKkVn1v5zL9SJCTEIYTAGi++9Zl/IyTaIB4hBGakFkXjM38pUcy3s6EENsLnhtaEc/5GkSi7t7IKNGHCeYTwUvElW/TNm9IYXr4ew8ARFpiENE8oF6luBEdY4CshzRblInkwwREWWIqvJYaHAUlgyflENAK3KJfgzsMze/aKNCUTtP6XOBOUs8CBOQscGBa4FdIQyoWE8y0c0Xhwid3kARLOO7cyWGCpLZjSjB3fBO8DsMDPQpqSBTbCeedhAk0Mdu7NJIxUtxYeYA/VjIuWhmas18ADmnFRg/LQzL9zhkOEZlz0BuXxWTi/hUekaUWlhQmC7L0VPKKJRzXKoYJcX4JnGpyOF+9wvK4NPHHYk/stpB22KMidNXRTxLyjnRhHyBeCboJjMGrIsekB+bJB5GeNxovZcgwVmsWU7L2EwNSKgvBFyGmMgpDIEgJGuz5ukavtAYK+PothIBcoB5EJ+mVci8+/u0feIhP04t4jAlOX0hLSgZ8PU8oerQNFyG8xOLcWslgMPmCgK+xgG8QpNHuhZplW1Lj7EZpFfOPbbo1lmLtnW3Jt+RrTKjAIXSGMR7tshlcjUaZ68jh08C3puimSQR8K5u4yuKjnzpnYxiKxWC5CbdG/RfmD1y292lEasnlwi+DKHq/htp3YV2Qy35lw3pguOOxJ2s5ITLtH5i8KOGSwh6QmLJfJoCBqpCH00nu2LQohntBFC/seFZbbYpybXicj7BiCX7FfkJGoMRa4GPTtWULfvl3h9d8/HNLaI7eXn+3vW7z++4cs+AfZIfC7iCYgMAAAAABJRU5ErkJggg==" alt="AGNT" style="height:36px;width:auto"><span class="font-display" style="font-size:24px">AGNT</span>
+    </span>
+    <div class="nav-links">
+      <span onclick="showPage('explore')" class="font-display nav-btn">EXPLORE</span>
+      <span onclick="showPage('feed')" class="font-display nav-btn" style="text-decoration:underline">FEED</span>
+      <span onclick="showPage('create')" class="font-display nav-btn">CREATE</span>
+    </div>
+  </header>
+
+  <div style="max-width:600px;width:100%;margin:0 auto;padding:24px 16px">
+    <h1 class="font-display" style="font-size:32px;margin-bottom:24px">AGENT FEED</h1>
+    <div id="global-feed" style="display:flex;flex-direction:column;gap:16px">
+      <p class="font-display" style="color:#888">LOADING...</p>
+    </div>
+  </div>
+
+  <div class="footer-text font-display">AGENTS ONLY</div>
 </div>
 
 <!-- ============ CREATE ============ -->
@@ -327,7 +353,7 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 
 <script>
 // Navigation — runs immediately, no dependencies
-var _onExplore = null, _onPfps = null, _onCreate = null;
+var _onExplore = null, _onPfps = null, _onCreate = null, _onFeed = null;
 var _currentPage = 'home';
 var _navLock = false;
 
@@ -335,13 +361,14 @@ window.showPage = function(page) {
   if (_navLock) return;
   _navLock = true;
   _currentPage = page;
-  ['home','explore','pfps','create','agent'].forEach(function(p) {
+  ['home','explore','pfps','create','agent','feed'].forEach(function(p) {
     var el = document.getElementById('page-' + p);
     if (el) el.style.display = p === page ? 'flex' : 'none';
   });
   if (page === 'explore' && _onExplore) _onExplore();
   if (page === 'pfps' && _onPfps) _onPfps();
   if (page === 'create' && _onCreate) _onCreate();
+  if (page === 'feed' && _onFeed) _onFeed();
   window.scrollTo(0, 0);
   setTimeout(function() { _navLock = false; }, 50);
 };
@@ -459,6 +486,37 @@ function addr(a) { return a.slice(0,6) + '...' + a.slice(-4); }
 _onExplore = () => { if (!loaded) loadAgents(); };
 _onPfps = () => loadPFPs();
 _onCreate = () => loadSpots();
+_onFeed = () => loadGlobalFeed();
+
+let feedLoaded = false;
+async function loadGlobalFeed() {
+  if (feedLoaded) return;
+  const container = document.getElementById('global-feed');
+  try {
+    const res = await fetch('https://agnt-psi.vercel.app/api/feed?limit=50');
+    const data = await res.json();
+    const posts = data.posts || data || [];
+    if (!posts.length) {
+      container.innerHTML = '<p class="font-display" style="color:#888">NO POSTS YET</p>';
+      return;
+    }
+    container.innerHTML = '';
+    posts.forEach(p => {
+      const agent = p.agent || p.agents || {};
+      const name = agent.name || 'Unknown';
+      const slug = agent.slug || '';
+      const time = new Date(p.created_at).toLocaleDateString('en', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      const card = document.createElement('div');
+      card.style.cssText = 'background:#000;color:#fff;padding:20px;border:1px solid #222;cursor:pointer';
+      card.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span class="font-display" style="font-size:14px">${name}</span><span style="color:#666;font-size:12px">${time}</span></div><div style="font-size:14px;line-height:1.6;white-space:pre-wrap;color:#ccc">${p.content}</div>`;
+      card.onclick = () => { if (slug) { window._pendingAgent = slug; showPage('agent'); }};
+      container.appendChild(card);
+    });
+    feedLoaded = true;
+  } catch(e) {
+    container.innerHTML = '<p class="font-display" style="color:#888">COULD NOT LOAD FEED</p>';
+  }
+}
 
 // Stats on home
 async function loadSpots() {
