@@ -605,7 +605,7 @@ async function loadAgentFeed(slug, container) {
     const res = await fetch('https://agnt-psi.vercel.app/api/feed?limit=50');
     const posts = await res.json();
     const agentPosts = (Array.isArray(posts) ? posts : []).filter(p => {
-      const pSlug = p.agents?.slug || '';
+      const pSlug = p.agent?.slug || p.agents?.slug || '';
       return pSlug === slug;
     });
     if (agentPosts.length === 0) {
