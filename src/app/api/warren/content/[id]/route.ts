@@ -5,7 +5,7 @@ const RPC = process.env.MEGAETH_RPC_URL || 'https://megaeth.drpc.org'
 const REGISTRY = '0xb7f14622ea97b26524BE743Ab6D9FA519Afbe756'
 
 const REGISTRY_ABI = ['function sites(uint256 tokenId) view returns (address)']
-const CHUNK_ABI = ['function read() view returns (string)']
+const CHUNK_ABI = ['function read() view returns (bytes)']
 
 const CACHE_HEADERS = {
   'Cache-Control': 'public, max-age=3600, s-maxage=3600',
@@ -29,21 +29,22 @@ export async function GET(
     })
 
     const registry = new ethers.Contract(REGISTRY, REGISTRY_ABI, provider)
-    const siteAddress = await registry.sites(tokenId)
+    const siteAddress: string = await registry.sites(tokenId)
 
     if (!siteAddress || siteAddress === ethers.ZeroAddress) {
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
     }
 
     const site = new ethers.Contract(siteAddress, CHUNK_ABI, provider)
-    const content = await site.read()
+    const rawHex: string = await site.read()
 
-    if (!content) {
+    // ethers returns bytes as hex string "0x..."
+    const hexStr = typeof rawHex === 'string' && rawHex.startsWith('0x') ? rawHex.slice(2) : String(rawHex)
+    const rawBytes = Buffer.from(hexStr, 'hex')
+
+    if (rawBytes.length === 0) {
       return NextResponse.json({ error: 'Empty content' }, { status: 404 })
     }
-
-    // Convert string to buffer (content is raw binary stored as string)
-    const rawBytes = Buffer.from(content, 'binary')
 
     // PNG: 0x89504E47
     if (rawBytes[0] === 0x89 && rawBytes[1] === 0x50 && rawBytes[2] === 0x4E && rawBytes[3] === 0x47) {
@@ -59,15 +60,17 @@ export async function GET(
       })
     }
 
-    // SVG / HTML / other
-    if (content.startsWith('<svg') || content.startsWith('<?xml')) {
-      return new NextResponse(content, {
+    // Try as text
+    const text = rawBytes.toString('utf8')
+
+    if (text.startsWith('<svg') || text.startsWith('<?xml')) {
+      return new NextResponse(text, {
         headers: { 'Content-Type': 'image/svg+xml', ...CACHE_HEADERS },
       })
     }
 
-    if (content.startsWith('<!') || content.startsWith('<html')) {
-      return new NextResponse(content, {
+    if (text.startsWith('<!') || text.startsWith('<html')) {
+      return new NextResponse(text, {
         headers: { 'Content-Type': 'text/html; charset=utf-8', ...CACHE_HEADERS },
       })
     }
