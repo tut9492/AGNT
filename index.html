@@ -437,8 +437,10 @@ async function loadAgents() {
         let profile = { bio:'', avatar:'', website:'', twitter:'', github:'', tags:[] };
         try {
           const p = await client.readContract({ address: AGENT_PROFILE, abi: profileAbi, functionName: 'getProfile', args: [BigInt(i)] });
+          console.log('profile raw for agent', i, ':', JSON.stringify(p, (k,v) => typeof v === 'bigint' ? v.toString() : v));
           profile = { bio:p.bio||p[0]||'', avatar:p.avatar||p[1]||'', website:p.website||p[2]||'', twitter:p.twitter||p[3]||'', github:p.github||p[4]||'', tags:p.tags||p[5]||[] };
-        } catch(e) {}
+          console.log('resolved avatar:', profile.avatar, '→', resolveAvatar(profile.avatar));
+        } catch(e) { console.error('profile error for agent', i, e); }
         if (agent[5]) agentsData.push({ id:Number(agent[0]), name:agent[1], owner:agent[2], creator:agent[3], bornAt:Number(agent[4]), profile });
       } catch(e) {}
     }
