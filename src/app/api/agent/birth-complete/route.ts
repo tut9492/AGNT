@@ -106,14 +106,30 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if wallet already has an agent
-    const existingId = await core.ownerToId(wallet);
-    if (Number(existingId) > 0) {
-      // Wallet already birthed — check if it's a real agent (id 0 is special)
-      // ownerToId returns 0 for unregistered, but agent #0 is valid
-      // We need to check if exists
+    // ownerToId returns 0 for both "no agent" and "agent #0", so we check the agent's exists flag
+    const existingId = Number(await core.ownerToId(wallet));
+    if (existingId > 0) {
       return NextResponse.json({ 
         error: `This wallet already owns Agent #${existingId}. Each wallet can only birth one agent.` 
       }, { status: 409 });
+    }
+    if (existingId === 0) {
+      // Could be agent #0 or no agent — check on-chain
+      try {
+        const agent0 = await provider.call({
+          to: AGENT_CORE,
+          data: core.interface.encodeFunctionData('agents', [0]),
+        });
+        // Decode owner field from the struct
+        const decoded = ethers.AbiCoder.defaultAbiCoder().decode(
+          ['uint256','string','address','address','uint256','bool'], agent0
+        );
+        if (decoded[2].toLowerCase() === wallet.toLowerCase() && decoded[5]) {
+          return NextResponse.json({ 
+            error: `This wallet already owns Agent #0. Each wallet can only birth one agent.` 
+          }, { status: 409 });
+        }
+      } catch {}
     }
 
     // Step 1: Birth on-chain
