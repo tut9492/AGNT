@@ -352,9 +352,23 @@ const coreAbi = parseAbi([
   'function agents(uint256) view returns (uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists)',
   'function birth(string name, address agentWallet) returns (uint256)'
 ]);
-const profileAbi = parseAbi([
-  'function getProfile(uint256) view returns (string bio, string avatar, string website, string twitter, string github, string[] tags, uint256 updatedAt)'
-]);
+const profileAbi = [
+  {
+    name: 'getProfile',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'agentId', type: 'uint256' }],
+    outputs: [{ name: '', type: 'tuple', components: [
+      { name: 'bio', type: 'string' },
+      { name: 'avatar', type: 'string' },
+      { name: 'website', type: 'string' },
+      { name: 'twitter', type: 'string' },
+      { name: 'github', type: 'string' },
+      { name: 'tags', type: 'string[]' },
+      { name: 'updatedAt', type: 'uint256' }
+    ]}]
+  }
+];
 const pfpAbi = parseAbi([
   'function nextTokenId() view returns (uint256)',
   'function ownerOf(uint256) view returns (address)',
@@ -423,7 +437,7 @@ async function loadAgents() {
         let profile = { bio:'', avatar:'', website:'', twitter:'', github:'', tags:[] };
         try {
           const p = await client.readContract({ address: AGENT_PROFILE, abi: profileAbi, functionName: 'getProfile', args: [BigInt(i)] });
-          profile = { bio:p[0], avatar:p[1], website:p[2], twitter:p[3], github:p[4], tags:p[5]||[] };
+          profile = { bio:p.bio||p[0]||'', avatar:p.avatar||p[1]||'', website:p.website||p[2]||'', twitter:p.twitter||p[3]||'', github:p.github||p[4]||'', tags:p.tags||p[5]||[] };
         } catch(e) {}
         if (agent[5]) agentsData.push({ id:Number(agent[0]), name:agent[1], owner:agent[2], creator:agent[3], bornAt:Number(agent[4]), profile });
       } catch(e) {}
