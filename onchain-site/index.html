@@ -344,6 +344,7 @@ function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.
 
 function resolveAvatar(avatar) {
   if (!avatar) return '';
+  if (avatar.startsWith('warren://')) return 'https://agnt-psi.vercel.app/api/warren/content/' + avatar.slice(9);
   if (avatar.startsWith('http')) return avatar;
   if (avatar.startsWith('ipfs://')) return 'https://gateway.pinata.cloud/ipfs/' + avatar.slice(7);
   if (avatar.startsWith('Qm') || avatar.startsWith('bafy')) return 'https://gateway.pinata.cloud/ipfs/' + avatar;
