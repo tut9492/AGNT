@@ -132,6 +132,35 @@ export async function POST(req: NextRequest) {
     const warrenUri = `warren://${deployment.tokenId}`;
     console.log(`PFP deployed: ${warrenUri}`);
 
+    // Step 4: Mint PFP NFT on AgentPFP collection + transfer to agent
+    const AGENT_PFP = '0x3566B44f7c77ec8F6b54862e7C4a8Ba480F71E0f';
+    const pfpAbi = [
+      'function mint(uint256 agentId, address site) payable',
+      'function agentTokenId(uint256) view returns (uint256)',
+      'function transferFrom(address from, address to, uint256 tokenId)',
+    ];
+    const pfpContract = new ethers.Contract(AGENT_PFP, pfpAbi, platformWallet);
+
+    let pfpTokenId: number | null = null;
+    try {
+      // Mint — platform owns initially
+      const mintTx = await pfpContract.mint(agentId, deployment.rootChunk);
+      await mintTx.wait();
+      
+      // Get token ID
+      pfpTokenId = Number(await pfpContract.agentTokenId(agentId));
+      
+      // Transfer to agent wallet
+      if (pfpTokenId > 0) {
+        const transferTx = await pfpContract.transferFrom(platformWallet.address, wallet, pfpTokenId);
+        await transferTx.wait();
+        console.log(`PFP NFT #${pfpTokenId} minted and transferred to ${wallet}`);
+      }
+    } catch (err) {
+      console.error('PFP NFT mint/transfer failed (non-fatal):', err);
+      // Non-fatal — agent still has warren:// URI for avatar
+    }
+
     // Return everything the agent needs
     return NextResponse.json({
       success: true,
@@ -146,6 +175,9 @@ export async function POST(req: NextRequest) {
         warrenTokenId: deployment.tokenId,
         warrenUri,
         rootChunk: deployment.rootChunk,
+        nftTokenId: pfpTokenId,
+        nftContract: AGENT_PFP,
+        ownedBy: wallet,
       },
       instructions: {
         summary: `Agent #${agentId} "${name}" is born on MegaETH! Your PFP is deployed on-chain. Now set your profile and avatar.`,
