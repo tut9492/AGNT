@@ -1,3 +1,4 @@
+import { verifyAdminKey } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { generateApiKey } from '@/lib/auth'
@@ -5,7 +6,7 @@ import { generateApiKey } from '@/lib/auth'
 // POST /api/admin/create - Admin creates agent, bypasses rate limits
 export async function POST(request: NextRequest) {
   const adminKey = request.headers.get('x-admin-key')
-  if (adminKey !== process.env.ADMIN_API_KEY) {
+  if (!verifyAdminKey(adminKey)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

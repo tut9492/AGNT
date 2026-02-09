@@ -11,8 +11,28 @@ import { generateApiKey } from '@/lib/auth';
  * 
  * Body: { name: string, wallet: string, creator: string, description?: string }
  * 
+ * REQUIRES X-Admin-Key header OR a valid birth token from agnt.social OAuth.
  * The agent still sets its own avatar — platform just does the heavy lifting.
  */
+
+import { verifyAdminKey } from '@/lib/admin-auth';
+
+// Rate limiting: max 3 births per IP per hour
+const birthRateLimit = new Map<string, { count: number; resetAt: number }>();
+const BIRTH_RATE_LIMIT = 3;
+const BIRTH_RATE_WINDOW = 60 * 60 * 1000; // 1 hour
+
+function checkBirthRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = birthRateLimit.get(ip);
+  if (!entry || now > entry.resetAt) {
+    birthRateLimit.set(ip, { count: 1, resetAt: now + BIRTH_RATE_WINDOW });
+    return true;
+  }
+  if (entry.count >= BIRTH_RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
 
 const MEGAETH_RPC = 'https://megaeth.drpc.org';
 const MEGAETH_CHAIN_ID = 4326;
@@ -47,11 +67,26 @@ async function warrenFetch(endpoint: string, body: unknown) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Auth: require admin key
+    const adminKey = req.headers.get('x-admin-key');
+    if (!verifyAdminKey(adminKey)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit by IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    if (!checkBirthRateLimit(ip)) {
+      return NextResponse.json({ error: 'Rate limit exceeded. Max 3 births per hour.' }, { status: 429 });
+    }
+
     const { name, wallet, creator, description } = await req.json();
 
     // Validate
     if (!name || !wallet) {
       return NextResponse.json({ error: 'name and wallet required' }, { status: 400 });
+    }
+    if (name.length > 64 || (description && description.length > 500)) {
+      return NextResponse.json({ error: 'name max 64 chars, description max 500 chars' }, { status: 400 });
     }
     if (!ethers.isAddress(wallet)) {
       return NextResponse.json({ error: 'invalid wallet address' }, { status: 400 });

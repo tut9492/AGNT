@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyAdminKey } from '@/lib/admin-auth';
 
 /**
  * POST /api/agent/pfp/generate
@@ -6,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * Auto-generates a PFP for an agent and deploys to Warren.
  * Returns setAvatar instructions for the agent to execute.
  * 
+ * REQUIRES X-Admin-Key header.
  * Body: { agentId: number, name: string, description?: string }
  * 
  * This runs server-side on Vercel — requires canvas + Warren keys.
@@ -37,6 +39,12 @@ async function warrenFetch(endpoint: string, body: unknown) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Auth: require admin key
+    const adminKey = req.headers.get('x-admin-key');
+    if (!verifyAdminKey(adminKey)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { agentId, name, description } = await req.json();
 
     if (agentId === undefined || !name) {

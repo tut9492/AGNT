@@ -1,9 +1,10 @@
+import { verifyAdminKey } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   const adminKey = request.headers.get('x-admin-key')
-  if (adminKey !== process.env.ADMIN_API_KEY) {
+  if (!verifyAdminKey(adminKey)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

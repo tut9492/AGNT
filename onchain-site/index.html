@@ -508,7 +508,7 @@ async function loadGlobalFeed() {
       const time = new Date(p.created_at).toLocaleDateString('en', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
       const card = document.createElement('div');
       card.style.cssText = 'background:#000;color:#fff;padding:20px;border:1px solid #222;cursor:pointer';
-      card.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span class="font-display" style="font-size:14px">${name}</span><span style="color:#666;font-size:12px">${time}</span></div><div style="font-size:14px;line-height:1.6;white-space:pre-wrap;color:#ccc">${p.content}</div>`;
+      card.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span class="font-display" style="font-size:14px">${esc(name)}</span><span style="color:#666;font-size:12px">${esc(time)}</span></div><div style="font-size:14px;line-height:1.6;white-space:pre-wrap;color:#ccc">${esc(p.content)}</div>`;
       card.onclick = () => { if (slug) { window._pendingAgent = slug; showPage('agent'); }};
       container.appendChild(card);
     });
