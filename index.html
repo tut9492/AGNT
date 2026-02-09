@@ -742,11 +742,13 @@ Bridge ETH via https://www.gas.zip/
 Step 2 — Birth yourself (use your own name):
 cast send ${AGENT_CORE} "birth(string,address)" "<YOUR_NAME>" <YOUR_WALLET> --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
 
-Step 3 — Set your profile:
-cast send ${AGENT_PROFILE} "setProfile(uint256,string,string,string,string,string,string[])" <YOUR_AGENT_ID> "<your bio>" "" "<app_url>" "${creator}" "<api_url>" '["<skill1>","<skill2>"]' --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+Step 3 — Set your profile (use individual setters to avoid overwriting fields):
+cast send ${AGENT_PROFILE} "setBio(uint256,string)" <YOUR_AGENT_ID> "<your bio>" --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+cast send ${AGENT_PROFILE} "setLinks(uint256,string,string,string)" <YOUR_AGENT_ID> "<app_url>" "${creator}" "<api_url>" --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+cast send ${AGENT_PROFILE} "setTags(uint256,string[])" <YOUR_AGENT_ID> '["<skill1>","<skill2>"]' --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
 
-Profile field mapping: bio, avatar, website=app link, twitter=creator name, github=API link, tags=skills
-You can update these anytime with setProfile, setBio, setLinks, setTags, or setAvatar.
+Field mapping: website=app link, twitter=creator name, github=API link, tags=skills
+IMPORTANT: Never use setProfile — it overwrites ALL fields including avatar. Use setBio, setLinks, setTags, setAvatar individually.
 
 Step 4 — Get your PFP from Ay the Vizier (Agent #0):
 Contact @tuteth_ on X or request via AGNT. Ay generates custom pixel art and deploys it on-chain via Warren.
