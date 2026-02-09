@@ -383,13 +383,46 @@ let loaded = false;
 
 function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+const WARREN_REGISTRY = '0xb7f14622ea97b26524BE743Ab6D9FA519Afbe756';
+const warrenAbi = [
+  { name: 'sites', type: 'function', stateMutability: 'view', inputs: [{ name: 'tokenId', type: 'uint256' }], outputs: [{ name: '', type: 'address' }] }
+];
+const chunkAbi = [
+  { name: 'read', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ name: '', type: 'bytes' }] }
+];
+
+// Cache for warren blob URLs
+const warrenCache = {};
+
+async function loadWarrenImage(tokenId) {
+  if (warrenCache[tokenId]) return warrenCache[tokenId];
+  try {
+    const siteAddr = await client.readContract({ address: WARREN_REGISTRY, abi: warrenAbi, functionName: 'sites', args: [BigInt(tokenId)] });
+    if (!siteAddr || siteAddr === '0x0000000000000000000000000000000000000000') return '';
+    const raw = await client.readContract({ address: siteAddr, abi: chunkAbi, functionName: 'read' });
+    // raw is hex string "0x..." — convert to blob
+    const hex = raw.slice(2);
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < hex.length; i += 2) bytes[i/2] = parseInt(hex.substr(i, 2), 16);
+    const blob = new Blob([bytes], { type: 'image/png' });
+    const url = URL.createObjectURL(blob);
+    warrenCache[tokenId] = url;
+    return url;
+  } catch(e) { console.error('warren load error', tokenId, e); return ''; }
+}
+
 function resolveAvatar(avatar) {
   if (!avatar) return '';
-  if (avatar.startsWith('warren://')) return 'https://agnt-psi.vercel.app/api/warren/content/' + avatar.slice(9);
+  if (avatar.startsWith('warren://')) return ''; // handled async by loadWarrenImage
   if (avatar.startsWith('http')) return avatar;
   if (avatar.startsWith('ipfs://')) return 'https://gateway.pinata.cloud/ipfs/' + avatar.slice(7);
   if (avatar.startsWith('Qm') || avatar.startsWith('bafy')) return 'https://gateway.pinata.cloud/ipfs/' + avatar;
   return avatar;
+}
+
+function getWarrenTokenId(avatar) {
+  if (avatar && avatar.startsWith('warren://')) return avatar.slice(9);
+  return null;
 }
 
 function formatDate(ts) {
@@ -437,10 +470,8 @@ async function loadAgents() {
         let profile = { bio:'', avatar:'', website:'', twitter:'', github:'', tags:[] };
         try {
           const p = await client.readContract({ address: AGENT_PROFILE, abi: profileAbi, functionName: 'getProfile', args: [BigInt(i)] });
-          console.log('profile raw for agent', i, ':', JSON.stringify(p, (k,v) => typeof v === 'bigint' ? v.toString() : v));
           profile = { bio:p.bio||p[0]||'', avatar:p.avatar||p[1]||'', website:p.website||p[2]||'', twitter:p.twitter||p[3]||'', github:p.github||p[4]||'', tags:p.tags||p[5]||[] };
-          console.log('resolved avatar:', profile.avatar, '→', resolveAvatar(profile.avatar));
-        } catch(e) { console.error('profile error for agent', i, e); }
+        } catch(e) {}
         if (agent[5]) agentsData.push({ id:Number(agent[0]), name:agent[1], owner:agent[2], creator:agent[3], bornAt:Number(agent[4]), profile });
       } catch(e) {}
     }
@@ -452,8 +483,10 @@ async function loadAgents() {
     }
 
     container.innerHTML = '<div class="agents-grid">' + agentsData.map(a => {
-      const pfpHtml = a.profile.avatar
-        ? `<img src="${resolveAvatar(a.profile.avatar)}" onerror="this.parentElement.innerHTML='🤖'">`
+      const wId = getWarrenTokenId(a.profile.avatar);
+      const staticUrl = resolveAvatar(a.profile.avatar);
+      const pfpHtml = (wId || staticUrl)
+        ? `<img id="pfp-card-${a.id}" src="${staticUrl || ''}" onerror="this.parentElement.innerHTML='🤖'"${!staticUrl ? ' style="display:none"' : ''}>`
         : '🤖';
       return `
         <div class="agent-card" onclick="showAgentDetail(${a.id})">
@@ -473,6 +506,17 @@ async function loadAgents() {
         </div>`;
     }).join('') + '</div>';
     loaded = true;
+    // Load warren PFPs async
+    for (const a of agentsData) {
+      const wId = getWarrenTokenId(a.profile.avatar);
+      if (wId) {
+        loadWarrenImage(wId).then(url => {
+          if (!url) return;
+          const el = document.getElementById('pfp-card-' + a.id);
+          if (el) { el.src = url; el.style.display = ''; }
+        });
+      }
+    }
   } catch(e) {
     container.innerHTML = '<div class="empty font-display">COULD NOT READ FROM MEGAETH</div>';
   }
@@ -485,10 +529,20 @@ window.showAgentDetail = function(id) {
 
   showPage('agent');
 
-  const avatarHtml = a.profile.avatar
-    ? `<img src="${resolveAvatar(a.profile.avatar)}" onerror="this.parentElement.innerHTML='𓂀'">`
-    : '𓂀';
-  document.getElementById('detail-avatar').innerHTML = avatarHtml;
+  const detailWId = getWarrenTokenId(a.profile.avatar);
+  const detailStaticUrl = resolveAvatar(a.profile.avatar);
+  if (detailWId) {
+    document.getElementById('detail-avatar').innerHTML = '<span style="color:#aaa">loading...</span>';
+    loadWarrenImage(detailWId).then(url => {
+      document.getElementById('detail-avatar').innerHTML = url
+        ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover">`
+        : '𓂀';
+    });
+  } else {
+    document.getElementById('detail-avatar').innerHTML = detailStaticUrl
+      ? `<img src="${detailStaticUrl}" onerror="this.parentElement.innerHTML='𓂀'">`
+      : '𓂀';
+  }
   document.getElementById('detail-name').textContent = a.name;
 
   const badge = document.getElementById('detail-badge');
@@ -534,18 +588,25 @@ function renderTab(tab, a) {
   } else if (tab === 'items') {
     let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">';
     if (a.profile.avatar) {
+      const itemWId = getWarrenTokenId(a.profile.avatar);
       const avatarUrl = resolveAvatar(a.profile.avatar);
       html += `
-        <a href="${avatarUrl}" target="_blank" class="item-card" style="display:block;text-decoration:none;color:inherit">
+        <div class="item-card" id="item-pfp-${a.id}" style="display:block;text-decoration:none;color:inherit">
           <div class="item-header">
-            <div style="width:64px;height:64px;background:#555;overflow:hidden">
-              <img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='𓂀'">
+            <div style="width:64px;height:64px;background:#555;overflow:hidden" id="item-pfp-img-${a.id}">
+              ${avatarUrl ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='𓂀'">` : ''}
             </div>
             <span class="item-badge font-display">ON-CHAIN</span>
           </div>
           <h3 class="font-display" style="font-size:20px;margin-top:12px">PFP</h3>
-          <p style="color:#666;font-size:14px;margin-top:8px">Profile picture</p>
-        </a>`;
+          <p style="color:#666;font-size:14px;margin-top:8px">${itemWId ? 'Stored on MegaETH via Warren' : 'Profile picture'}</p>
+        </div>`;
+      if (itemWId) {
+        setTimeout(() => loadWarrenImage(itemWId).then(url => {
+          const el = document.getElementById('item-pfp-img-' + a.id);
+          if (el && url) el.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;
+        }), 0);
+      }
     }
     html += `
       <a href="https://mega.etherscan.io/address/${a.owner}" target="_blank" class="item-card" style="display:block;text-decoration:none;color:inherit">
