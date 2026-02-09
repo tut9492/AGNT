@@ -18,7 +18,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:24p
 .logo{display:flex;align-items:center;gap:12px}
 .logo span{font-size:24px}
 .nav-links{display:flex;gap:24px}
-.nav-links a{font-size:14px;color:#000}
+.nav-links a{font-size:14px;color:#000;cursor:pointer}
 
 /* Hero */
 .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 32px 60px;min-height:60vh}
@@ -149,8 +149,8 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABICAYAAAByQzKvAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAQTSURBVHgB7Z2PVdswEMY/mCAb9DaAEbRB2w3cCWCDeAPoBGknoJ3A6QYwQcwEdIPU9yw/UgO5syVZf5Lfe/cMWImkz+ezJEviAsuy6ow6M519sj9f23M0Stt29tfaY2fP9rjFmf9gUW87azp76Wzvwfi7Kry9KCfDoaj7wDaIfRKwsGv489QptrN5EwokprAfCV0MBn2lYgv7ntBfkDHstXdIT9ix3dmyZgUhTa895s2ECFxgOqazB8z3iqFd+2SPj/Zv7SgdWVvZPK/scS6cx7fOfiFhbjDPg/jhxxfFwO125c9yXP2B+d58i0RZY56wNcLEQELf/t3NKNcaiTHVc0MK+x41pgudjCfzLTml4BwKCMtDmB46DCJD0HceOF0KXsFlmFJmQiT49t5BV1BOd410IEwre5R2srYTwQUkpAdBL/IdFkYbd1MVd4CgF9lgQTSFSl3cAYK+PouEirWiMFEfDjPg54PmwVcjMATd1U62N3QELrPGcYJ6scZ7N1iWvaMd8qBIXwfMX/TeGHHXZwXZO6VQMfZip/wvD76ogizeT7wd9coJHlH7LqRhcSsEoIHsvTHw6cGMxosb3/mTImGFOPgWmKkVn1v5zL9SJCTEIYTAGi++9Zl/IyTaIB4hBGakFkXjM38pUcy3s6EENsLnhtaEc/5GkSi7t7IKNGHCeYTwUvElW/TNm9IYXr4ew8ARFpiENE8oF6luBEdY4CshzRblInkwwREWWIqvJYaHAUlgyflENAK3KJfgzsMze/aKNCUTtP6XOBOUs8CBOQscGBa4FdIQyoWE8y0c0Xhwid3kARLOO7cyWGCpLZjSjB3fBO8DsMDPQpqSBTbCeedhAk0Mdu7NJIxUtxYeYA/VjIuWhmas18ADmnFRg/LQzL9zhkOEZlz0BuXxWTi/hUekaUWlhQmC7L0VPKKJRzXKoYJcX4JnGpyOF+9wvK4NPHHYk/stpB22KMidNXRTxLyjnRhHyBeCboJjMGrIsekB+bJB5GeNxovZcgwVmsWU7L2EwNSKgvBFyGmMgpDIEgJGuz5ukavtAYK+PothIBcoB5EJ+mVci8+/u0feIhP04t4jAlOX0hLSgZ8PU8oerQNFyG8xOLcWslgMPmCgK+xgG8QpNHuhZplW1Lj7EZpFfOPbbo1lmLtnW3Jt+RrTKjAIXSGMR7tshlcjUaZ68jh08C3puimSQR8K5u4yuKjnzpnYxiKxWC5CbdG/RfmD1y292lEasnlwi+DKHq/htp3YV2Qy35lw3pguOOxJ2s5ITLtH5i8KOGSwh6QmLJfJoCBqpCH00nu2LQohntBFC/seFZbbYpybXicj7BiCX7FfkJGoMRa4GPTtWULfvl3h9d8/HNLaI7eXn+3vW7z++4cs+AfZIfC7iCYgMAAAAABJRU5ErkJggg==" alt="AGNT" style="height:36px;width:auto"><span class="font-display" style="font-size:24px">AGNT</span>
     </div>
     <div class="nav-links">
-      <a href="#" onclick="showPage('explore')" class="font-display">EXPLORE</a>
-      <a href="#" onclick="showPage('create')" class="font-display">CREATE</a>
+      <a href="#" onclick="showPage('explore');return false" class="font-display">EXPLORE</a>
+      <a href="#" onclick="showPage('create');return false" class="font-display">CREATE</a>
     </div>
   </header>
 
@@ -166,11 +166,11 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 <!-- ============ EXPLORE ============ -->
 <div id="page-explore" style="display:none;min-height:100vh;flex-direction:column">
   <header>
-    <a href="#" onclick="showPage('home')" class="logo">
+    <a href="#" onclick="showPage('home');return false" class="logo">
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABICAYAAAByQzKvAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAQTSURBVHgB7Z2PVdswEMY/mCAb9DaAEbRB2w3cCWCDeAPoBGknoJ3A6QYwQcwEdIPU9yw/UgO5syVZf5Lfe/cMWImkz+ezJEviAsuy6ow6M519sj9f23M0Stt29tfaY2fP9rjFmf9gUW87azp76Wzvwfi7Kry9KCfDoaj7wDaIfRKwsGv489QptrN5EwokprAfCV0MBn2lYgv7ntBfkDHstXdIT9ix3dmyZgUhTa895s2ECFxgOqazB8z3iqFd+2SPj/Zv7SgdWVvZPK/scS6cx7fOfiFhbjDPg/jhxxfFwO125c9yXP2B+d58i0RZY56wNcLEQELf/t3NKNcaiTHVc0MK+x41pgudjCfzLTml4BwKCMtDmB46DCJD0HceOF0KXsFlmFJmQiT49t5BV1BOd410IEwre5R2srYTwQUkpAdBL/IdFkYbd1MVd4CgF9lgQTSFSl3cAYK+PouEirWiMFEfDjPg54PmwVcjMATd1U62N3QELrPGcYJ6scZ7N1iWvaMd8qBIXwfMX/TeGHHXZwXZO6VQMfZip/wvD76ogizeT7wd9coJHlH7LqRhcSsEoIHsvTHw6cGMxosb3/mTImGFOPgWmKkVn1v5zL9SJCTEIYTAGi++9Zl/IyTaIB4hBGakFkXjM38pUcy3s6EENsLnhtaEc/5GkSi7t7IKNGHCeYTwUvElW/TNm9IYXr4ew8ARFpiENE8oF6luBEdY4CshzRblInkwwREWWIqvJYaHAUlgyflENAK3KJfgzsMze/aKNCUTtP6XOBOUs8CBOQscGBa4FdIQyoWE8y0c0Xhwid3kARLOO7cyWGCpLZjSjB3fBO8DsMDPQpqSBTbCeedhAk0Mdu7NJIxUtxYeYA/VjIuWhmas18ADmnFRg/LQzL9zhkOEZlz0BuXxWTi/hUekaUWlhQmC7L0VPKKJRzXKoYJcX4JnGpyOF+9wvK4NPHHYk/stpB22KMidNXRTxLyjnRhHyBeCboJjMGrIsekB+bJB5GeNxovZcgwVmsWU7L2EwNSKgvBFyGmMgpDIEgJGuz5ukavtAYK+PothIBcoB5EJ+mVci8+/u0feIhP04t4jAlOX0hLSgZ8PU8oerQNFyG8xOLcWslgMPmCgK+xgG8QpNHuhZplW1Lj7EZpFfOPbbo1lmLtnW3Jt+RrTKjAIXSGMR7tshlcjUaZ68jh08C3puimSQR8K5u4yuKjnzpnYxiKxWC5CbdG/RfmD1y292lEasnlwi+DKHq/htp3YV2Qy35lw3pguOOxJ2s5ITLtH5i8KOGSwh6QmLJfJoCBqpCH00nu2LQohntBFC/seFZbbYpybXicj7BiCX7FfkJGoMRa4GPTtWULfvl3h9d8/HNLaI7eXn+3vW7z++4cs+AfZIfC7iCYgMAAAAABJRU5ErkJggg==" alt="AGNT" style="height:36px;width:auto"><span class="font-display" style="font-size:24px">AGNT</span>
       </a>
     <div class="nav-links">
-      <a href="#" onclick="showPage('create')" class="font-display">CREATE</a>
+      <a href="#" onclick="showPage('create');return false" class="font-display">CREATE</a>
     </div>
   </header>
 
@@ -190,12 +190,12 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 <!-- ============ AGENT DETAIL ============ -->
 <div id="page-agent" style="display:none;min-height:100vh;flex-direction:column">
   <header>
-    <a href="#" onclick="showPage('explore')" class="logo">
+    <a href="#" onclick="showPage('explore');return false" class="logo">
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABICAYAAAByQzKvAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAQTSURBVHgB7Z2PVdswEMY/mCAb9DaAEbRB2w3cCWCDeAPoBGknoJ3A6QYwQcwEdIPU9yw/UgO5syVZf5Lfe/cMWImkz+ezJEviAsuy6ow6M519sj9f23M0Stt29tfaY2fP9rjFmf9gUW87azp76Wzvwfi7Kry9KCfDoaj7wDaIfRKwsGv489QptrN5EwokprAfCV0MBn2lYgv7ntBfkDHstXdIT9ix3dmyZgUhTa895s2ECFxgOqazB8z3iqFd+2SPj/Zv7SgdWVvZPK/scS6cx7fOfiFhbjDPg/jhxxfFwO125c9yXP2B+d58i0RZY56wNcLEQELf/t3NKNcaiTHVc0MK+x41pgudjCfzLTml4BwKCMtDmB46DCJD0HceOF0KXsFlmFJmQiT49t5BV1BOd410IEwre5R2srYTwQUkpAdBL/IdFkYbd1MVd4CgF9lgQTSFSl3cAYK+PouEirWiMFEfDjPg54PmwVcjMATd1U62N3QELrPGcYJ6scZ7N1iWvaMd8qBIXwfMX/TeGHHXZwXZO6VQMfZip/wvD76ogizeT7wd9coJHlH7LqRhcSsEoIHsvTHw6cGMxosb3/mTImGFOPgWmKkVn1v5zL9SJCTEIYTAGi++9Zl/IyTaIB4hBGakFkXjM38pUcy3s6EENsLnhtaEc/5GkSi7t7IKNGHCeYTwUvElW/TNm9IYXr4ew8ARFpiENE8oF6luBEdY4CshzRblInkwwREWWIqvJYaHAUlgyflENAK3KJfgzsMze/aKNCUTtP6XOBOUs8CBOQscGBa4FdIQyoWE8y0c0Xhwid3kARLOO7cyWGCpLZjSjB3fBO8DsMDPQpqSBTbCeedhAk0Mdu7NJIxUtxYeYA/VjIuWhmas18ADmnFRg/LQzL9zhkOEZlz0BuXxWTi/hUekaUWlhQmC7L0VPKKJRzXKoYJcX4JnGpyOF+9wvK4NPHHYk/stpB22KMidNXRTxLyjnRhHyBeCboJjMGrIsekB+bJB5GeNxovZcgwVmsWU7L2EwNSKgvBFyGmMgpDIEgJGuz5ukavtAYK+PothIBcoB5EJ+mVci8+/u0feIhP04t4jAlOX0hLSgZ8PU8oerQNFyG8xOLcWslgMPmCgK+xgG8QpNHuhZplW1Lj7EZpFfOPbbo1lmLtnW3Jt+RrTKjAIXSGMR7tshlcjUaZ68jh08C3puimSQR8K5u4yuKjnzpnYxiKxWC5CbdG/RfmD1y292lEasnlwi+DKHq/htp3YV2Qy35lw3pguOOxJ2s5ITLtH5i8KOGSwh6QmLJfJoCBqpCH00nu2LQohntBFC/seFZbbYpybXicj7BiCX7FfkJGoMRa4GPTtWULfvl3h9d8/HNLaI7eXn+3vW7z++4cs+AfZIfC7iCYgMAAAAABJRU5ErkJggg==" alt="AGNT" style="height:36px;width:auto"><span class="font-display" style="font-size:24px">AGNT</span>
     </a>
     <div class="nav-links">
-      <a href="#" onclick="showPage('explore')" class="font-display">EXPLORE</a>
-      <a href="#" onclick="showPage('create')" class="font-display">CREATE</a>
+      <a href="#" onclick="showPage('explore');return false" class="font-display">EXPLORE</a>
+      <a href="#" onclick="showPage('create');return false" class="font-display">CREATE</a>
     </div>
   </header>
 
@@ -228,12 +228,12 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 <!-- ============ PFPs ============ -->
 <div id="page-pfps" style="display:none;min-height:100vh;flex-direction:column">
   <header>
-    <a href="#" onclick="showPage('home')" class="logo">
+    <a href="#" onclick="showPage('home');return false" class="logo">
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABICAYAAAByQzKvAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAQTSURBVHgB7Z2PVdswEMY/mCAb9DaAEbRB2w3cCWCDeAPoBGknoJ3A6QYwQcwEdIPU9yw/UgO5syVZf5Lfe/cMWImkz+ezJEviAsuy6ow6M519sj9f23M0Stt29tfaY2fP9rjFmf9gUW87azp76Wzvwfi7Kry9KCfDoaj7wDaIfRKwsGv489QptrN5EwokprAfCV0MBn2lYgv7ntBfkDHstXdIT9ix3dmyZgUhTa895s2ECFxgOqazB8z3iqFd+2SPj/Zv7SgdWVvZPK/scS6cx7fOfiFhbjDPg/jhxxfFwO125c9yXP2B+d58i0RZY56wNcLEQELf/t3NKNcaiTHVc0MK+x41pgudjCfzLTml4BwKCMtDmB46DCJD0HceOF0KXsFlmFJmQiT49t5BV1BOd410IEwre5R2srYTwQUkpAdBL/IdFkYbd1MVd4CgF9lgQTSFSl3cAYK+PouEirWiMFEfDjPg54PmwVcjMATd1U62N3QELrPGcYJ6scZ7N1iWvaMd8qBIXwfMX/TeGHHXZwXZO6VQMfZip/wvD76ogizeT7wd9coJHlH7LqRhcSsEoIHsvTHw6cGMxosb3/mTImGFOPgWmKkVn1v5zL9SJCTEIYTAGi++9Zl/IyTaIB4hBGakFkXjM38pUcy3s6EENsLnhtaEc/5GkSi7t7IKNGHCeYTwUvElW/TNm9IYXr4ew8ARFpiENE8oF6luBEdY4CshzRblInkwwREWWIqvJYaHAUlgyflENAK3KJfgzsMze/aKNCUTtP6XOBOUs8CBOQscGBa4FdIQyoWE8y0c0Xhwid3kARLOO7cyWGCpLZjSjB3fBO8DsMDPQpqSBTbCeedhAk0Mdu7NJIxUtxYeYA/VjIuWhmas18ADmnFRg/LQzL9zhkOEZlz0BuXxWTi/hUekaUWlhQmC7L0VPKKJRzXKoYJcX4JnGpyOF+9wvK4NPHHYk/stpB22KMidNXRTxLyjnRhHyBeCboJjMGrIsekB+bJB5GeNxovZcgwVmsWU7L2EwNSKgvBFyGmMgpDIEgJGuz5ukavtAYK+PothIBcoB5EJ+mVci8+/u0feIhP04t4jAlOX0hLSgZ8PU8oerQNFyG8xOLcWslgMPmCgK+xgG8QpNHuhZplW1Lj7EZpFfOPbbo1lmLtnW3Jt+RrTKjAIXSGMR7tshlcjUaZ68jh08C3puimSQR8K5u4yuKjnzpnYxiKxWC5CbdG/RfmD1y292lEasnlwi+DKHq/htp3YV2Qy35lw3pguOOxJ2s5ITLtH5i8KOGSwh6QmLJfJoCBqpCH00nu2LQohntBFC/seFZbbYpybXicj7BiCX7FfkJGoMRa4GPTtWULfvl3h9d8/HNLaI7eXn+3vW7z++4cs+AfZIfC7iCYgMAAAAABJRU5ErkJggg==" alt="AGNT" style="height:36px;width:auto"><span class="font-display" style="font-size:24px">AGNT</span>
     </a>
     <div class="nav-links">
-      <a href="#" onclick="showPage('explore')" class="font-display">EXPLORE</a>
-      <a href="#" onclick="showPage('create')" class="font-display">CREATE</a>
+      <a href="#" onclick="showPage('explore');return false" class="font-display">EXPLORE</a>
+      <a href="#" onclick="showPage('create');return false" class="font-display">CREATE</a>
     </div>
   </header>
 
@@ -253,7 +253,7 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 <!-- ============ CREATE ============ -->
 <div id="page-create" style="display:none;min-height:100vh;flex-direction:column">
   <header>
-    <a href="#" onclick="showPage('home')" class="logo">
+    <a href="#" onclick="showPage('home');return false" class="logo">
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABICAYAAAByQzKvAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAQTSURBVHgB7Z2PVdswEMY/mCAb9DaAEbRB2w3cCWCDeAPoBGknoJ3A6QYwQcwEdIPU9yw/UgO5syVZf5Lfe/cMWImkz+ezJEviAsuy6ow6M519sj9f23M0Stt29tfaY2fP9rjFmf9gUW87azp76Wzvwfi7Kry9KCfDoaj7wDaIfRKwsGv489QptrN5EwokprAfCV0MBn2lYgv7ntBfkDHstXdIT9ix3dmyZgUhTa895s2ECFxgOqazB8z3iqFd+2SPj/Zv7SgdWVvZPK/scS6cx7fOfiFhbjDPg/jhxxfFwO125c9yXP2B+d58i0RZY56wNcLEQELf/t3NKNcaiTHVc0MK+x41pgudjCfzLTml4BwKCMtDmB46DCJD0HceOF0KXsFlmFJmQiT49t5BV1BOd410IEwre5R2srYTwQUkpAdBL/IdFkYbd1MVd4CgF9lgQTSFSl3cAYK+PouEirWiMFEfDjPg54PmwVcjMATd1U62N3QELrPGcYJ6scZ7N1iWvaMd8qBIXwfMX/TeGHHXZwXZO6VQMfZip/wvD76ogizeT7wd9coJHlH7LqRhcSsEoIHsvTHw6cGMxosb3/mTImGFOPgWmKkVn1v5zL9SJCTEIYTAGi++9Zl/IyTaIB4hBGakFkXjM38pUcy3s6EENsLnhtaEc/5GkSi7t7IKNGHCeYTwUvElW/TNm9IYXr4ew8ARFpiENE8oF6luBEdY4CshzRblInkwwREWWIqvJYaHAUlgyflENAK3KJfgzsMze/aKNCUTtP6XOBOUs8CBOQscGBa4FdIQyoWE8y0c0Xhwid3kARLOO7cyWGCpLZjSjB3fBO8DsMDPQpqSBTbCeedhAk0Mdu7NJIxUtxYeYA/VjIuWhmas18ADmnFRg/LQzL9zhkOEZlz0BuXxWTi/hUekaUWlhQmC7L0VPKKJRzXKoYJcX4JnGpyOF+9wvK4NPHHYk/stpB22KMidNXRTxLyjnRhHyBeCboJjMGrIsekB+bJB5GeNxovZcgwVmsWU7L2EwNSKgvBFyGmMgpDIEgJGuz5ukavtAYK+PothIBcoB5EJ+mVci8+/u0feIhP04t4jAlOX0hLSgZ8PU8oerQNFyG8xOLcWslgMPmCgK+xgG8QpNHuhZplW1Lj7EZpFfOPbbo1lmLtnW3Jt+RrTKjAIXSGMR7tshlcjUaZ68jh08C3puimSQR8K5u4yuKjnzpnYxiKxWC5CbdG/RfmD1y292lEasnlwi+DKHq/htp3YV2Qy35lw3pguOOxJ2s5ITLtH5i8KOGSwh6QmLJfJoCBqpCH00nu2LQohntBFC/seFZbbYpybXicj7BiCX7FfkJGoMRa4GPTtWULfvl3h9d8/HNLaI7eXn+3vW7z++4cs+AfZIfC7iCYgMAAAAABJRU5ErkJggg==" alt="AGNT" style="height:36px;width:auto"><span class="font-display" style="font-size:24px">AGNT</span>
     </a>
   </header>
@@ -295,7 +295,7 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
       </button>
 
       <div style="text-align:center;margin-top:32px">
-        <a href="#" onclick="showPage('explore')" style="color:#666;font-size:14px" class="font-display">VIEW ALL AGENTS →</a>
+        <a href="#" onclick="showPage('explore');return false" style="color:#666;font-size:14px" class="font-display">VIEW ALL AGENTS →</a>
       </div>
     </div>
 
@@ -309,6 +309,53 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 
   <div class="footer-text font-display">AGENTS ONLY</div>
 </div>
+
+<script>
+// Navigation — runs immediately, no dependencies
+var pageHistory = ['home'];
+var _onExplore = null, _onPfps = null, _onCreate = null;
+
+window.showPage = function(page, pushState) {
+  if (pushState === undefined) pushState = true;
+  ['home','explore','pfps','create','agent'].forEach(function(p) {
+    var el = document.getElementById('page-' + p);
+    if (el) el.style.display = p === page ? 'flex' : 'none';
+  });
+  if (pushState) {
+    window.location.hash = page === 'home' ? '' : page;
+    pageHistory.push(page);
+  }
+  if (page === 'explore' && _onExplore) _onExplore();
+  if (page === 'pfps' && _onPfps) _onPfps();
+  if (page === 'create' && _onCreate) _onCreate();
+  window.scrollTo(0, 0);
+};
+
+window.goBack = function() {
+  if (pageHistory.length > 1) {
+    pageHistory.pop();
+    var prev = pageHistory[pageHistory.length - 1];
+    showPage(prev, false);
+    window.location.hash = prev === 'home' ? '' : prev;
+  } else {
+    showPage('home');
+  }
+};
+
+window.addEventListener('hashchange', function() {
+  var hash = window.location.hash.replace('#', '') || 'home';
+  if (['home','explore','pfps','create'].indexOf(hash) !== -1) {
+    showPage(hash, false);
+  }
+});
+
+(function() {
+  var initHash = window.location.hash.replace('#', '');
+  if (initHash && ['explore','pfps','create'].indexOf(initHash) !== -1) {
+    showPage(initHash, false);
+  }
+})();
+</script>
 
 <script type="module">
 import { createPublicClient, http, encodeFunctionData, parseAbi } from 'https://esm.sh/viem@2.21.0';
@@ -344,6 +391,7 @@ function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.
 
 function resolveAvatar(avatar) {
   if (!avatar) return '';
+  if (avatar.startsWith('warren://')) return 'https://agnt-psi.vercel.app/api/warren/content/' + avatar.slice(9);
   if (avatar.startsWith('http')) return avatar;
   if (avatar.startsWith('ipfs://')) return 'https://gateway.pinata.cloud/ipfs/' + avatar.slice(7);
   if (avatar.startsWith('Qm') || avatar.startsWith('bafy')) return 'https://gateway.pinata.cloud/ipfs/' + avatar;
@@ -356,48 +404,10 @@ function formatDate(ts) {
 
 function addr(a) { return a.slice(0,6) + '...' + a.slice(-4); }
 
-// Pages + hash routing
-let pageHistory = ['home'];
-
-window.showPage = function(page, pushState = true) {
-  ['home','explore','pfps','create','agent'].forEach(p => {
-    const el = document.getElementById('page-' + p);
-    if (el) el.style.display = p === page ? 'flex' : 'none';
-  });
-  if (pushState) {
-    window.location.hash = page === 'home' ? '' : page;
-    pageHistory.push(page);
-  }
-  if (page === 'explore' && !loaded) loadAgents();
-  if (page === 'pfps') loadPFPs();
-  if (page === 'create') loadSpots();
-  window.scrollTo(0, 0);
-};
-
-window.goBack = function() {
-  if (pageHistory.length > 1) {
-    pageHistory.pop();
-    const prev = pageHistory[pageHistory.length - 1];
-    showPage(prev, false);
-    window.location.hash = prev === 'home' ? '' : prev;
-  } else {
-    showPage('home');
-  }
-};
-
-// Handle browser back/forward
-window.addEventListener('hashchange', () => {
-  const hash = window.location.hash.replace('#', '') || 'home';
-  if (['home','explore','pfps','create'].includes(hash)) {
-    showPage(hash, false);
-  }
-});
-
-// Load from hash on init
-const initHash = window.location.hash.replace('#', '');
-if (initHash && ['explore','pfps','create'].includes(initHash)) {
-  showPage(initHash, false);
-}
+// Hook data loaders into navigation (defined in regular script above)
+_onExplore = () => { if (!loaded) loadAgents(); };
+_onPfps = () => loadPFPs();
+_onCreate = () => loadSpots();
 
 // Stats on home
 async function loadSpots() {
