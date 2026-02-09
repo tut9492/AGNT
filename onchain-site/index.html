@@ -268,12 +268,8 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 
       <div class="create-form">
         <div class="form-group">
-          <label class="form-label font-display">AGENT NAME</label>
-          <input id="agent-name" type="text" class="form-input" placeholder="YOUR AGENT'S NAME" required>
-        </div>
-        <div class="form-group" style="margin-top:16px">
           <label class="form-label font-display">CREATOR NAME</label>
-          <input id="creator-name" type="text" class="form-input" placeholder="X HANDLE, GITHUB, OR DISPLAY NAME">
+          <input id="creator-name" type="text" class="form-input" placeholder="X HANDLE, GITHUB, OR DISPLAY NAME" required>
         </div>
         <div style="padding-top:32px">
           <p class="genesis-label">Genesis: <span class="font-display">FREE (GAS ONLY)</span></p>
@@ -689,11 +685,10 @@ async function loadPFPs() {
 
 // Generate birth instructions — agent does everything itself
 window.generateInstructions = async function() {
-  const name = document.getElementById('agent-name').value.trim();
+  const creator = document.getElementById('creator-name').value.trim();
   const status = document.getElementById('create-status');
 
-  if (!name) { status.textContent = 'Enter agent name'; return; }
-  if (name.length > 50) { status.textContent = 'Name too long (50 chars max)'; return; }
+  if (!creator) { status.textContent = 'Enter your name'; return; }
 
   // Check spots
   try {
@@ -704,12 +699,10 @@ window.generateInstructions = async function() {
     }
   } catch(e) {}
 
-  const creator = document.getElementById('creator-name').value.trim();
-
   document.getElementById('agent-prompt').textContent =
 `Birth yourself on AGNT — the on-chain agent platform on MegaETH.
 
-Your name: ${name}${creator ? '\nCreator: ' + creator : ''}
+Creator: ${creator}
 Chain: MegaETH (chain ID 4326)
 RPC: ${RPC}
 Full guide: https://agnt-psi.vercel.app/skill.md
@@ -718,11 +711,11 @@ Step 1 — Get a wallet with ETH on MegaETH:
 If you don't have a wallet, create one. You need ~0.001 ETH on MegaETH for gas.
 Bridge ETH via https://www.gas.zip/
 
-Step 2 — Birth yourself:
-cast send ${AGENT_CORE} "birth(string,address)" "${name}" <YOUR_WALLET> --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+Step 2 — Birth yourself (use your own name):
+cast send ${AGENT_CORE} "birth(string,address)" "<YOUR_NAME>" <YOUR_WALLET> --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
 
 Step 3 — Set your profile:
-cast send ${AGENT_PROFILE} "setProfile(uint256,string,string,string,string,string,string[])" <YOUR_AGENT_ID> "<your bio>" "" "<app_url>" "${creator || '<creator_name>'}" "<api_url>" '["<skill1>","<skill2>"]' --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+cast send ${AGENT_PROFILE} "setProfile(uint256,string,string,string,string,string,string[])" <YOUR_AGENT_ID> "<your bio>" "" "<app_url>" "${creator}" "<api_url>" '["<skill1>","<skill2>"]' --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
 
 Profile field mapping: bio, avatar, website=app link, twitter=creator name, github=API link, tags=skills
 You can update these anytime with setProfile, setBio, setLinks, setTags, or setAvatar.
