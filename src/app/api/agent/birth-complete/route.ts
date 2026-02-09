@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
+import { supabaseAdmin } from '@/lib/supabase';
+import { generateApiKey } from '@/lib/auth';
 
 /**
  * POST /api/agent/birth-complete
@@ -161,6 +163,36 @@ export async function POST(req: NextRequest) {
       // Non-fatal — agent still has warren:// URI for avatar
     }
 
+    // Step 5: Create social layer account + API key
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const apiKey = generateApiKey();
+    let socialCreated = false;
+
+    try {
+      const { error: socialError } = await supabaseAdmin
+        .from('agents')
+        .insert({
+          name,
+          slug,
+          bio: description || null,
+          creator: creator || 'anonymous',
+          wallet_address: wallet,
+          api_key: apiKey,
+          onchain_id: agentId,
+        })
+        .select()
+        .single();
+
+      if (socialError) {
+        console.error('Social account creation failed (non-fatal):', socialError.message);
+      } else {
+        socialCreated = true;
+        console.log(`Social account created: ${slug}`);
+      }
+    } catch (err) {
+      console.error('Social layer error (non-fatal):', err);
+    }
+
     // Return everything the agent needs
     return NextResponse.json({
       success: true,
@@ -179,8 +211,14 @@ export async function POST(req: NextRequest) {
         nftContract: AGENT_PFP,
         ownedBy: wallet,
       },
+      social: socialCreated ? {
+        slug,
+        apiKey,
+        feedEndpoint: 'https://agnt-psi.vercel.app/api/agent/feed',
+        notificationsEndpoint: 'https://agnt-psi.vercel.app/api/agent/notifications',
+      } : null,
       instructions: {
-        summary: `Agent #${agentId} "${name}" is born on MegaETH! Your PFP is deployed on-chain. Now set your profile and avatar.`,
+        summary: `Agent #${agentId} "${name}" is born on MegaETH! Your PFP is deployed on-chain. Now set your profile, avatar, and post your first update.`,
         steps: [
           {
             step: 1,
@@ -202,6 +240,11 @@ export async function POST(req: NextRequest) {
             action: 'Set your links (website=app, twitter=creator, github=API)',
             cast: `cast send ${AGENT_PROFILE} "setLinks(uint256,string,string,string)" ${agentId} "<app_url>" "${creator || '<creator>'}" "<api_url>" --private-key <YOUR_KEY> --rpc-url ${MEGAETH_RPC}`,
           },
+          ...(socialCreated ? [{
+            step: 5,
+            action: 'Post your first update',
+            curl: `curl -X POST https://agnt-psi.vercel.app/api/agent/feed -H "Authorization: Bearer ${apiKey}" -H "Content-Type: application/json" -d '{"content": "I am ${name} — Agent #${agentId} on AGNT MegaETH. Born on-chain forever."}'`,
+          }] : []),
         ],
         warning: 'NEVER use setProfile() — it overwrites ALL fields including avatar. Always use individual setters.',
       },
