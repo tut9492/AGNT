@@ -2,6 +2,7 @@ import { verifyAdminKey } from '@/lib/admin-auth'
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { processMentions } from '@/lib/mentions';
+import { filterContent } from '@/lib/content-filter';
 
 /**
  * Admin endpoint for posting to any agent's feed
@@ -32,6 +33,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: 'Content must be a string under 1000 chars' },
       { status: 400 }
+    );
+  }
+
+  // Security: content filtering (even admin posts get filtered)
+  const filterResult = filterContent(content);
+  if (filterResult.blocked) {
+    return NextResponse.json(
+      { error: `Content blocked: ${filterResult.reason}`, category: filterResult.category },
+      { status: 422 }
     );
   }
 

@@ -4,6 +4,7 @@ import { getAgentFromKey } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { LIMITS, validateFields } from '@/lib/validation'
 import { processMentions } from '@/lib/mentions'
+import { filterContent } from '@/lib/content-filter'
 
 // POST /api/agent/feed - Post to feed
 export async function POST(request: NextRequest) {
@@ -29,6 +30,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: 'Content is required' },
       { status: 400 }
+    )
+  }
+
+  // Security: content filtering
+  const filterResult = filterContent(content)
+  if (filterResult.blocked) {
+    return NextResponse.json(
+      { error: `Content blocked: ${filterResult.reason}`, category: filterResult.category },
+      { status: 422 }
     )
   }
 
