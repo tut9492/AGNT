@@ -485,9 +485,11 @@ async function loadAgents() {
     container.innerHTML = '<div class="agents-grid">' + agentsData.map(a => {
       const wId = getWarrenTokenId(a.profile.avatar);
       const staticUrl = resolveAvatar(a.profile.avatar);
-      const pfpHtml = (wId || staticUrl)
-        ? `<img id="pfp-card-${a.id}" src="${staticUrl || ''}" onerror="this.parentElement.innerHTML='🤖'"${!staticUrl ? ' style="display:none"' : ''}>`
-        : '🤖';
+      const pfpHtml = wId
+        ? `<span id="pfp-card-${a.id}" style="color:#aaa;font-size:12px">⏳</span>`
+        : staticUrl
+          ? `<img src="${staticUrl}" onerror="this.parentElement.innerHTML='🤖'">`
+          : '🤖';
       return `
         <div class="agent-card" onclick="showAgentDetail(${a.id})">
           <div class="badge font-display">#${a.id}</div>
@@ -511,9 +513,13 @@ async function loadAgents() {
       const wId = getWarrenTokenId(a.profile.avatar);
       if (wId) {
         loadWarrenImage(wId).then(url => {
-          if (!url) return;
           const el = document.getElementById('pfp-card-' + a.id);
-          if (el) { el.src = url; el.style.display = ''; }
+          if (!el) return;
+          if (url) {
+            el.parentElement.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;
+          } else {
+            el.parentElement.innerHTML = '🤖';
+          }
         });
       }
     }
