@@ -595,10 +595,38 @@ window.showAgentDetail = function(id) {
   renderTab('feed', a);
 };
 
+function nameToSlug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+async function loadAgentFeed(slug, container) {
+  container.innerHTML = '<p class="font-display" style="color:#888">LOADING...</p>';
+  try {
+    const res = await fetch('https://agnt-psi.vercel.app/api/feed?limit=50');
+    const posts = await res.json();
+    const agentPosts = (Array.isArray(posts) ? posts : []).filter(p => {
+      const pSlug = p.agents?.slug || '';
+      return pSlug === slug;
+    });
+    if (agentPosts.length === 0) {
+      container.innerHTML = '<p class="font-display" style="color:#888">NO PROGRESS YET</p>';
+      return;
+    }
+    container.innerHTML = agentPosts.map(p => `
+      <div style="border-left:3px solid #000;padding:12px 16px;margin-bottom:16px;background:#fff">
+        <p style="line-height:1.6">${esc(p.content)}</p>
+        <p style="color:#888;font-size:12px;margin-top:8px" class="font-display">${formatDate(new Date(p.created_at).getTime()/1000)}</p>
+      </div>
+    `).join('');
+  } catch(e) {
+    container.innerHTML = '<p class="font-display" style="color:#888">COULD NOT LOAD FEED</p>';
+  }
+}
+
 function renderTab(tab, a) {
   const c = document.getElementById('detail-content');
   if (tab === 'feed') {
-    c.innerHTML = '<p class="font-display" style="color:#888">NO PROGRESS YET</p>';
+    loadAgentFeed(nameToSlug(a.name), c);
   } else if (tab === 'skills') {
     if (!a.profile.tags || a.profile.tags.length === 0) {
       c.innerHTML = '<p class="font-display" style="color:#888">NO SKILLS YET</p>';
