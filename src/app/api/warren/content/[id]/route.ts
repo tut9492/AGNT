@@ -4,20 +4,19 @@ import { ethers } from 'ethers'
 const RPC = process.env.MEGAETH_RPC_URL || 'https://megaeth.drpc.org'
 const REGISTRY = '0xb7f14622ea97b26524BE743Ab6D9FA519Afbe756'
 
+// Warren MasterNFT Registry — maps tokenId → root chunk contract
+// The root chunk has read() that returns raw content
 const REGISTRY_ABI = [
-  'function getMasterContract(uint256 tokenId) view returns (address)',
+  'function ownerOf(uint256 tokenId) view returns (address)',
+  'function getLinkedSites(uint256 tokenId) view returns (address[])',
 ]
 
-const MASTER_ABI = [
+const CHUNK_ABI = [
+  'function read() view returns (string)',
   'function getCurrentChunkCount() view returns (uint256)',
   'function resolveCurrentChunk(uint256 index) view returns (address)',
 ]
 
-const PAGE_ABI = [
-  'function read() view returns (string)',
-]
-
-// Cache for 1 hour — on-chain content is immutable
 const CACHE_HEADERS = {
   'Cache-Control': 'public, max-age=3600, s-maxage=3600',
 }
@@ -39,63 +38,72 @@ export async function GET(
       name: 'megaeth',
     })
 
-    // Get master contract from registry
+    // Get linked sites (master contracts) from registry
     const registry = new ethers.Contract(REGISTRY, REGISTRY_ABI, provider)
-    const masterAddress = await registry.getMasterContract(tokenId)
+    const sites = await registry.getLinkedSites(tokenId)
 
-    if (!masterAddress || masterAddress === ethers.ZeroAddress) {
-      return NextResponse.json({ error: 'Content not found' }, { status: 404 })
+    if (!sites || sites.length === 0) {
+      return NextResponse.json({ error: 'No content linked to this token' }, { status: 404 })
     }
 
-    // Read chunks from master
-    const master = new ethers.Contract(masterAddress, MASTER_ABI, provider)
-    const chunkCount = Number(await master.getCurrentChunkCount())
+    const masterAddress = sites[0]
 
-    if (chunkCount === 0) {
-      return NextResponse.json({ error: 'No content' }, { status: 404 })
-    }
+    // Try reading directly from master (single chunk case)
+    const master = new ethers.Contract(masterAddress, CHUNK_ABI, provider)
 
-    let fullContent = ''
-    for (let i = 0; i < chunkCount; i++) {
-      const chunkAddr = await master.resolveCurrentChunk(i)
-      const page = new ethers.Contract(chunkAddr, PAGE_ABI, provider)
-      fullContent += await page.read()
-    }
-
-    // Detect if it's base64 image data or HTML
-    if (fullContent.startsWith('data:image/')) {
-      // data:image/png;base64,... — extract and serve as image
-      const match = fullContent.match(/^data:image\/(\w+);base64,(.+)$/)
-      if (match) {
-        const mimeType = `image/${match[1]}`
-        const buffer = Buffer.from(match[2], 'base64')
-        return new NextResponse(buffer, {
-          headers: {
-            'Content-Type': mimeType,
-            ...CACHE_HEADERS,
-          },
-        })
+    let fullContent: string
+    try {
+      // Try multi-chunk read first
+      const chunkCount = Number(await master.getCurrentChunkCount())
+      fullContent = ''
+      for (let i = 0; i < chunkCount; i++) {
+        const chunkAddr = await master.resolveCurrentChunk(i)
+        const chunk = new ethers.Contract(chunkAddr, CHUNK_ABI, provider)
+        fullContent += await chunk.read()
       }
+    } catch {
+      // Fall back to single read()
+      fullContent = await master.read()
     }
 
-    // Try to detect raw base64 PNG/JPEG
-    if (fullContent.startsWith('iVBOR') || fullContent.startsWith('/9j/')) {
-      const isPng = fullContent.startsWith('iVBOR')
-      const buffer = Buffer.from(fullContent, 'base64')
-      return new NextResponse(buffer, {
-        headers: {
-          'Content-Type': isPng ? 'image/png' : 'image/jpeg',
-          ...CACHE_HEADERS,
-        },
+    if (!fullContent) {
+      return NextResponse.json({ error: 'Empty content' }, { status: 404 })
+    }
+
+    // Detect content type from raw bytes
+    const rawBytes = Buffer.from(fullContent, 'binary')
+
+    // PNG signature: 0x89504E47
+    if (rawBytes[0] === 0x89 && rawBytes[1] === 0x50 && rawBytes[2] === 0x4E && rawBytes[3] === 0x47) {
+      return new NextResponse(rawBytes, {
+        headers: { 'Content-Type': 'image/png', ...CACHE_HEADERS },
       })
     }
 
-    // Return as HTML/text
-    return new NextResponse(fullContent, {
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-        ...CACHE_HEADERS,
-      },
+    // JPEG signature: 0xFFD8FF
+    if (rawBytes[0] === 0xFF && rawBytes[1] === 0xD8 && rawBytes[2] === 0xFF) {
+      return new NextResponse(rawBytes, {
+        headers: { 'Content-Type': 'image/jpeg', ...CACHE_HEADERS },
+      })
+    }
+
+    // SVG
+    if (fullContent.startsWith('<svg') || fullContent.startsWith('<?xml')) {
+      return new NextResponse(fullContent, {
+        headers: { 'Content-Type': 'image/svg+xml', ...CACHE_HEADERS },
+      })
+    }
+
+    // HTML
+    if (fullContent.startsWith('<!') || fullContent.startsWith('<html')) {
+      return new NextResponse(fullContent, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8', ...CACHE_HEADERS },
+      })
+    }
+
+    // Default: return as binary
+    return new NextResponse(rawBytes, {
+      headers: { 'Content-Type': 'application/octet-stream', ...CACHE_HEADERS },
     })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error'
