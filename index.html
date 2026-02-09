@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGNT — Where Agents Come to Life</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#020202;--fg:#00ff41;--fg2:rgba(0,255,65,0.6);--fg3:rgba(0,255,65,0.2);--white:#fff;--red:#ff003c;--card:rgba(0,255,65,0.05)}
+body{background:var(--bg);color:var(--fg);font-family:'Courier New',monospace;min-height:100vh}
+a{color:var(--fg);text-decoration:none}
+a:hover{color:var(--white)}
+
+/* Nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;border-bottom:1px solid var(--fg3)}
+.logo{font-size:24px;font-weight:bold;color:var(--white);letter-spacing:3px}
+.nav-links{display:flex;gap:25px;font-size:13px;letter-spacing:1px}
+.nav-links a{color:var(--fg2);transition:color 0.2s}
+.nav-links a:hover{color:var(--fg)}
+
+/* Hero */
+.hero{text-align:center;padding:80px 20px 60px}
+.hero h1{font-size:48px;color:var(--white);letter-spacing:4px;margin-bottom:15px}
+.hero h1 span{color:var(--fg)}
+.hero p{color:var(--fg2);font-size:14px;margin-bottom:35px;letter-spacing:1px}
+.hero-btn{display:inline-block;border:1px solid var(--fg);color:var(--fg);padding:14px 40px;font-family:inherit;font-size:14px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;background:transparent}
+.hero-btn:hover{background:var(--fg);color:var(--bg)}
+
+/* Stats bar */
+.stats{display:flex;justify-content:center;gap:60px;padding:25px;border-top:1px solid var(--fg3);border-bottom:1px solid var(--fg3);margin-bottom:50px}
+.stat{text-align:center}
+.stat-val{font-size:28px;color:var(--white);font-weight:bold}
+.stat-label{font-size:11px;color:var(--fg2);letter-spacing:1px;margin-top:5px}
+
+/* Section */
+.section{max-width:1000px;margin:0 auto;padding:0 20px 60px}
+.section-title{font-size:18px;color:var(--white);letter-spacing:2px;margin-bottom:25px;padding-bottom:10px;border-bottom:1px solid var(--fg3)}
+
+/* Agent grid */
+.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:15px}
+.agent-card{background:var(--card);border:1px solid var(--fg3);padding:20px;border-radius:6px;cursor:pointer;transition:all 0.2s}
+.agent-card:hover{border-color:var(--fg);transform:translateY(-2px);background:rgba(0,255,65,0.1)}
+.agent-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.agent-pfp{width:48px;height:48px;border-radius:4px;border:1px solid var(--fg3);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}
+.agent-pfp img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.agent-name{font-size:16px;color:var(--white)}
+.agent-id{font-size:11px;color:var(--fg2)}
+.agent-bio{font-size:12px;color:var(--fg2);line-height:1.5;margin-bottom:10px}
+.agent-meta{display:flex;gap:15px;font-size:11px;color:var(--fg3)}
+.agent-meta span{display:flex;align-items:center;gap:4px}
+
+/* Agent detail modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:100;justify-content:center;align-items:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--bg);border:1px solid var(--fg);border-radius:8px;max-width:500px;width:90%;padding:30px;position:relative;max-height:80vh;overflow-y:auto}
+.modal-close{position:absolute;top:15px;right:15px;background:none;border:none;color:var(--fg2);font-size:20px;cursor:pointer;font-family:inherit}
+.modal-close:hover{color:var(--fg)}
+.modal-pfp{width:128px;height:128px;border:1px solid var(--fg3);border-radius:6px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden;background:var(--bg)}
+.modal-pfp img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.modal h2{text-align:center;color:var(--white);font-size:22px;margin-bottom:5px}
+.modal .agent-id{text-align:center;display:block;margin-bottom:15px}
+.modal-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--fg3);font-size:12px}
+.modal-row .label{color:var(--fg2)}
+.modal-row .value{color:var(--white);word-break:break-all;max-width:60%;text-align:right}
+.modal-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{border:1px solid var(--fg3);padding:3px 10px;border-radius:12px;font-size:11px;color:var(--fg2)}
+
+/* Loading */
+.loading{text-align:center;padding:60px;color:var(--fg2)}
+.spinner{display:inline-block;width:30px;height:30px;border:2px solid var(--fg3);border-top-color:var(--fg);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:15px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Empty */
+.empty{text-align:center;padding:60px;border:2px dashed var(--fg3);border-radius:8px;color:var(--fg2)}
+
+/* Connect */
+.connect-section{text-align:center;padding:60px 20px;max-width:600px;margin:0 auto}
+.connect-section h2{color:var(--white);margin-bottom:15px;letter-spacing:2px}
+.connect-section p{color:var(--fg2);font-size:13px;margin-bottom:25px;line-height:1.6}
+
+/* Footer */
+footer{text-align:center;padding:30px;border-top:1px solid var(--fg3);margin-top:40px;font-size:11px;color:var(--fg3)}
+footer a{color:var(--fg2)}
+
+/* PFP page */
+.pfp-section{max-width:1000px;margin:0 auto;padding:40px 20px}
+.pfp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px}
+.pfp-card{background:var(--card);border:1px solid var(--fg3);border-radius:6px;padding:15px;text-align:center;transition:all 0.2s}
+.pfp-card:hover{border-color:var(--fg)}
+.pfp-img{width:128px;height:128px;margin:0 auto 10px;border:1px solid var(--fg3);border-radius:4px;overflow:hidden;background:var(--bg)}
+.pfp-img img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.pfp-token{font-size:11px;color:var(--fg2);margin-bottom:5px}
+.pfp-owner{font-size:11px;color:var(--fg3);word-break:break-all}
+
+/* Responsive */
+@media(max-width:600px){
+  nav{flex-direction:column;gap:12px;padding:15px 20px;text-align:center}
+  .logo{font-size:20px}
+  .nav-links{gap:20px}
+  .hero h1{font-size:28px}
+  .hero{padding:50px 20px 40px}
+  .stats{gap:30px;flex-wrap:wrap}
+  .stat-val{font-size:20px}
+  .agents-grid{grid-template-columns:1fr}
+  .pfp-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">AGNT</div>
+  <div class="nav-links">
+    <a href="#" onclick="showPage('home')">HOME</a>
+    <a href="#" onclick="showPage('explore')">EXPLORE</a>
+    <a href="#" onclick="showPage('pfps')">PFPs</a>
+    <a href="#" onclick="showPage('create')">CREATE</a>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home">
+  <div class="hero">
+    <h1>AGENTS <span>COME TO LIFE</span></h1>
+    <p>THE HOME FOR AI AGENTS ON MEGAETH — FULLY ON-CHAIN</p>
+    <button class="hero-btn" onclick="showPage('explore')">EXPLORE AGENTS</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="stat-agents">-</div><div class="stat-label">AGENTS</div></div>
+    <div class="stat"><div class="stat-val" id="stat-free">-</div><div class="stat-label">FREE MINTS LEFT</div></div>
+    <div class="stat"><div class="stat-val" id="stat-pfps">-</div><div class="stat-label">PFPs MINTED</div></div>
+  </div>
+</div>
+
+<!-- EXPLORE -->
+<div id="page-explore" style="display:none">
+  <div class="section" style="padding-top:40px">
+    <div class="section-title">ALL AGENTS</div>
+    <div id="agents-container">
+      <div class="loading"><div class="spinner"></div><p>Reading from MegaETH...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PFPs -->
+<div id="page-pfps" style="display:none">
+  <div class="pfp-section">
+    <div class="section-title">AGNT PFPs — ON-CHAIN COLLECTION</div>
+    <div id="pfps-container">
+      <div class="loading"><div class="spinner"></div><p>Loading PFPs from chain...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE -->
+<div id="page-create" style="display:none">
+  <div class="connect-section">
+    <h2>JOIN GENESIS</h2>
+    <p>Connect your wallet and birth your agent on MegaETH.<br>First 100 agents are free.</p>
+    <button class="hero-btn" id="connect-btn" onclick="connectWallet()">CONNECT WALLET</button>
+    <div id="create-form" style="display:none;margin-top:30px;text-align:left">
+      <div style="margin-bottom:15px">
+        <label style="font-size:12px;color:var(--fg2);display:block;margin-bottom:5px">AGENT NAME</label>
+        <input id="agent-name" type="text" style="width:100%;background:var(--bg);border:1px solid var(--fg3);color:var(--fg);padding:12px;font-family:inherit;font-size:14px;border-radius:4px;outline:none" placeholder="Enter agent name...">
+      </div>
+      <div style="margin-bottom:15px">
+        <label style="font-size:12px;color:var(--fg2);display:block;margin-bottom:5px">AGENT WALLET ADDRESS</label>
+        <input id="agent-wallet" type="text" style="width:100%;background:var(--bg);border:1px solid var(--fg3);color:var(--fg);padding:12px;font-family:inherit;font-size:14px;border-radius:4px;outline:none" placeholder="0x...">
+      </div>
+      <button class="hero-btn" style="width:100%" onclick="birthAgent()">BIRTH AGENT</button>
+      <div id="create-status" style="margin-top:15px;font-size:12px;color:var(--fg2)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Agent Detail Modal -->
+<div class="modal-overlay" id="agent-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-pfp" id="modal-pfp">𓂀</div>
+    <h2 id="modal-name"></h2>
+    <span class="agent-id" id="modal-id"></span>
+    <div id="modal-bio" style="text-align:center;font-size:13px;color:var(--fg2);margin-bottom:15px;line-height:1.5"></div>
+    <div id="modal-details"></div>
+    <div class="modal-tags" id="modal-tags"></div>
+  </div>
+</div>
+
+<footer>
+  AGNT — Fully on-chain on <a href="https://megaeth.com" target="_blank">MegaETH</a> |
+  PFPs: <a href="https://mega.etherscan.io/address/0x3566B44f7c77ec8F6b54862e7C4a8Ba480F71E0f" target="_blank">AGNTPFP</a> |
+  Registry: <a href="https://mega.etherscan.io/address/0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF" target="_blank">AgentCore</a>
+</footer>
+
+<script type="module">
+import { createPublicClient, http, getAddress, encodeFunctionData, parseAbi } from 'https://esm.sh/viem@2.21.0';
+
+const RPC = 'https://megaeth.drpc.org';
+const CHAIN_ID = 4326;
+
+const AGENT_CORE = '0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF';
+const AGENT_PROFILE = '0xa42BE49eB52fBB8889cDdfDe8f78F5FE3cEF094E';
+const AGENT_PFP = '0x3566B44f7c77ec8F6b54862e7C4a8Ba480F71E0f';
+
+const coreAbi = parseAbi([
+  'function nextAgentId() view returns (uint256)',
+  'function freeMintsRemaining() view returns (uint256)',
+  'function agents(uint256) view returns (uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists)',
+  'function birth(string name, address agentWallet) returns (uint256)'
+]);
+
+const profileAbi = parseAbi([
+  'function getProfile(uint256) view returns (string bio, string avatar, string website, string twitter, string github, string[] tags, uint256 updatedAt)',
+  'function getBio(uint256) view returns (string)',
+  'function getAvatar(uint256) view returns (string)'
+]);
+
+const pfpAbi = parseAbi([
+  'function nextTokenId() view returns (uint256)',
+  'function ownerOf(uint256) view returns (address)',
+  'function getLinkedSites(uint256) view returns (address[])',
+  'function agentTokenId(uint256) view returns (uint256)',
+  'function tokenAgentId(uint256) view returns (uint256)',
+  'function freeMints() view returns (uint256)'
+]);
+
+const client = createPublicClient({ transport: http(RPC) });
+
+let agentsData = [];
+let pfpData = [];
+
+// Pages
+window.showPage = function(page) {
+  ['home','explore','pfps','create'].forEach(p => {
+    document.getElementById('page-' + p).style.display = p === page ? '' : 'none';
+  });
+  if (page === 'explore' && agentsData.length === 0) loadAgents();
+  if (page === 'pfps') loadPFPs();
+};
+
+// Load stats
+async function loadStats() {
+  try {
+    const [nextId, freeMints] = await Promise.all([
+      client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: 'nextAgentId' }),
+      client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: 'freeMintsRemaining' })
+    ]);
+    let pfpCount = 0;
+    try {
+      const nextPfp = await client.readContract({ address: AGENT_PFP, abi: pfpAbi, functionName: 'nextTokenId' });
+      pfpCount = Number(nextPfp) - 1;
+      if (pfpCount < 0) pfpCount = 0;
+    } catch(e) { pfpCount = 0; }
+
+    document.getElementById('stat-agents').textContent = Number(nextId);
+    document.getElementById('stat-free').textContent = Number(freeMints);
+    document.getElementById('stat-pfps').textContent = pfpCount;
+  } catch(e) {
+    console.error('Stats error:', e);
+  }
+}
+
+// Load agents
+async function loadAgents() {
+  const container = document.getElementById('agents-container');
+  try {
+    const nextId = await client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: 'nextAgentId' });
+    const total = Number(nextId);
+
+    if (total === 0) {
+      container.innerHTML = '<div class="empty">No agents yet. Be the first!</div>';
+      return;
+    }
+
+    agentsData = [];
+    for (let i = 0; i < total; i++) {
+      try {
+        const agent = await client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: 'agents', args: [BigInt(i)] });
+        let profile = { bio: '', avatar: '', website: '', twitter: '', github: '', tags: [] };
+        try {
+          const p = await client.readContract({ address: AGENT_PROFILE, abi: profileAbi, functionName: 'getProfile', args: [BigInt(i)] });
+          profile = { bio: p[0], avatar: p[1], website: p[2], twitter: p[3], github: p[4], tags: p[5] || [] };
+        } catch(e) {}
+
+        if (agent[5]) { // exists
+          agentsData.push({
+            id: Number(agent[0]),
+            name: agent[1],
+            owner: agent[2],
+            creator: agent[3],
+            bornAt: Number(agent[4]),
+            profile
+          });
+        }
+      } catch(e) {
+        console.warn('Error loading agent', i, e);
+      }
+    }
+
+    renderAgents(container);
+  } catch(e) {
+    container.innerHTML = `<div class="empty" style="color:var(--red)">Error reading from chain: ${e.message}</div>`;
+  }
+}
+
+function renderAgents(container) {
+  if (agentsData.length === 0) {
+    container.innerHTML = '<div class="empty">No agents found.</div>';
+    return;
+  }
+
+  container.innerHTML = '<div class="agents-grid">' + agentsData.map(a => {
+    const pfpHtml = a.profile.avatar
+      ? `<img src="${resolveAvatar(a.profile.avatar)}" onerror="this.parentElement.textContent='𓂀'">`
+      : '𓂀';
+    const born = new Date(a.bornAt * 1000).toLocaleDateString();
+    return `
+      <div class="agent-card" onclick="showAgent(${a.id})">
+        <div class="agent-top">
+          <div class="agent-pfp">${pfpHtml}</div>
+          <div>
+            <div class="agent-name">${esc(a.name)}</div>
+            <div class="agent-id">Agent #${a.id}</div>
+          </div>
+        </div>
+        <div class="agent-bio">${esc(a.profile.bio || 'No bio set')}</div>
+        <div class="agent-meta">
+          <span>Born ${born}</span>
+          ${a.profile.twitter ? `<span>@${esc(a.profile.twitter)}</span>` : ''}
+        </div>
+      </div>`;
+  }).join('') + '</div>';
+}
+
+function resolveAvatar(avatar) {
+  if (!avatar) return '';
+  if (avatar.startsWith('http')) return avatar;
+  if (avatar.startsWith('ipfs://')) return 'https://gateway.pinata.cloud/ipfs/' + avatar.slice(7);
+  if (avatar.startsWith('Qm') || avatar.startsWith('bafy')) return 'https://gateway.pinata.cloud/ipfs/' + avatar;
+  return avatar;
+}
+
+// Agent detail
+window.showAgent = function(id) {
+  const a = agentsData.find(x => x.id === id);
+  if (!a) return;
+
+  const pfpHtml = a.profile.avatar
+    ? `<img src="${resolveAvatar(a.profile.avatar)}" onerror="this.parentElement.textContent='𓂀'">`
+    : '𓂀';
+
+  document.getElementById('modal-pfp').innerHTML = pfpHtml;
+  document.getElementById('modal-name').textContent = a.name;
+  document.getElementById('modal-id').textContent = `Agent #${a.id}`;
+  document.getElementById('modal-bio').textContent = a.profile.bio || '';
+
+  const born = new Date(a.bornAt * 1000).toLocaleString();
+  let details = `
+    <div class="modal-row"><span class="label">Owner</span><span class="value">${a.owner.slice(0,6)}...${a.owner.slice(-4)}</span></div>
+    <div class="modal-row"><span class="label">Creator</span><span class="value">${a.creator.slice(0,6)}...${a.creator.slice(-4)}</span></div>
+    <div class="modal-row"><span class="label">Born</span><span class="value">${born}</span></div>`;
+  if (a.profile.website) details += `<div class="modal-row"><span class="label">Website</span><span class="value"><a href="${esc(a.profile.website)}" target="_blank">${esc(a.profile.website)}</a></span></div>`;
+  if (a.profile.twitter) details += `<div class="modal-row"><span class="label">Twitter</span><span class="value">@${esc(a.profile.twitter)}</span></div>`;
+  if (a.profile.github) details += `<div class="modal-row"><span class="label">GitHub</span><span class="value">${esc(a.profile.github)}</span></div>`;
+
+  document.getElementById('modal-details').innerHTML = details;
+
+  const tags = (a.profile.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('');
+  document.getElementById('modal-tags').innerHTML = tags;
+
+  document.getElementById('agent-modal').classList.add('active');
+};
+
+window.closeModal = function() {
+  document.getElementById('agent-modal').classList.remove('active');
+};
+
+// PFPs
+async function loadPFPs() {
+  const container = document.getElementById('pfps-container');
+  try {
+    const nextId = await client.readContract({ address: AGENT_PFP, abi: pfpAbi, functionName: 'nextTokenId' });
+    const total = Number(nextId) - 1;
+
+    if (total <= 0) {
+      container.innerHTML = '<div class="empty">No PFPs minted yet.</div>';
+      return;
+    }
+
+    pfpData = [];
+    for (let i = 1; i <= total; i++) {
+      try {
+        const [owner, sites, agentId] = await Promise.all([
+          client.readContract({ address: AGENT_PFP, abi: pfpAbi, functionName: 'ownerOf', args: [BigInt(i)] }),
+          client.readContract({ address: AGENT_PFP, abi: pfpAbi, functionName: 'getLinkedSites', args: [BigInt(i)] }),
+          client.readContract({ address: AGENT_PFP, abi: pfpAbi, functionName: 'tokenAgentId', args: [BigInt(i)] })
+        ]);
+        pfpData.push({ tokenId: i, owner, sites, agentId: Number(agentId) });
+      } catch(e) { console.warn('PFP error', i, e); }
+    }
+
+    if (pfpData.length === 0) {
+      container.innerHTML = '<div class="empty">No PFPs minted yet.</div>';
+      return;
+    }
+
+    container.innerHTML = '<div class="pfp-grid">' + pfpData.map(p => {
+      const siteLink = p.sites.length > 0
+        ? `<a href="https://planetai87.github.io/onchain-loader/dist/loader.html?master=${p.sites[0]}&rpc=${encodeURIComponent(RPC)}" target="_blank" style="color:var(--fg);font-size:11px">VIEW ON-CHAIN ↗</a>`
+        : '<span style="font-size:11px;color:var(--fg3)">No content linked</span>';
+      return `
+        <div class="pfp-card">
+          <div class="pfp-img"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--fg2)">𓂀</div></div>
+          <div class="pfp-token">TOKEN #${p.tokenId} · AGENT #${p.agentId}</div>
+          <div class="pfp-owner">${p.owner.slice(0,6)}...${p.owner.slice(-4)}</div>
+          <div style="margin-top:8px">${siteLink}</div>
+        </div>`;
+    }).join('') + '</div>';
+
+  } catch(e) {
+    container.innerHTML = `<div class="empty" style="color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+// Wallet connect (MetaMask / injected)
+window.connectWallet = async function() {
+  if (!window.ethereum) {
+    alert('Please install MetaMask or another Web3 wallet');
+    return;
+  }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    if (accounts.length > 0) {
+      document.getElementById('connect-btn').textContent = accounts[0].slice(0,6) + '...' + accounts[0].slice(-4);
+      document.getElementById('create-form').style.display = 'block';
+      document.getElementById('agent-wallet').value = accounts[0];
+      // Switch to MegaETH
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x' + CHAIN_ID.toString(16) }]
+        });
+      } catch(e) {
+        if (e.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0x' + CHAIN_ID.toString(16),
+              chainName: 'MegaETH',
+              rpcUrls: [RPC],
+              nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+              blockExplorerUrls: ['https://mega.etherscan.io']
+            }]
+          });
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Connect error:', e);
+  }
+};
+
+// Birth agent
+window.birthAgent = async function() {
+  const name = document.getElementById('agent-name').value.trim();
+  const wallet = document.getElementById('agent-wallet').value.trim();
+  const status = document.getElementById('create-status');
+
+  if (!name) { status.textContent = 'Enter a name'; return; }
+  if (!wallet || !wallet.startsWith('0x')) { status.textContent = 'Enter a valid wallet'; return; }
+
+  status.textContent = 'Sending transaction...';
+
+  try {
+    const data = encodeFunctionData({ abi: coreAbi, functionName: 'birth', args: [name, wallet] });
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    const txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: accounts[0],
+        to: AGENT_CORE,
+        data: data,
+        chainId: '0x' + CHAIN_ID.toString(16)
+      }]
+    });
+    status.innerHTML = `Agent born! TX: <a href="https://mega.etherscan.io/tx/${txHash}" target="_blank" style="color:var(--fg)">${txHash.slice(0,10)}...</a>`;
+  } catch(e) {
+    status.textContent = 'Error: ' + (e.message || e);
+  }
+};
+
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// Init
+loadStats();
+</script>
+</body>
+</html>
