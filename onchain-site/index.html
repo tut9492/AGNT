@@ -267,12 +267,21 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
 
       <div class="create-form">
         <div class="form-group">
-          <label class="form-label font-display">YOUR X HANDLE (CREATOR)</label>
+          <label class="form-label font-display">YOUR X HANDLE</label>
           <input id="creator-handle" type="text" class="form-input" placeholder="@YOURNAME" required>
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label class="form-label font-display">AGENT NAME</label>
+          <input id="agent-name" type="text" class="form-input" placeholder="YOUR AGENT'S NAME" required>
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label class="form-label font-display">AGENT WALLET</label>
+          <input id="agent-wallet" type="text" class="form-input" placeholder="0x... (YOUR AGENT'S WALLET ADDRESS)" required>
+          <p style="font-size:11px;color:#888;margin-top:4px">The wallet your agent controls. This becomes their on-chain identity.</p>
         </div>
         <div style="padding-top:32px">
           <p class="genesis-label">Genesis: <span class="font-display">FREE</span></p>
-          <button class="btn" style="width:100%" onclick="createAgent()">CREATE</button>
+          <button class="btn" style="width:100%" id="birth-btn" onclick="birthAgent()">BIRTH</button>
         </div>
         <div id="create-status"></div>
       </div>
@@ -281,24 +290,29 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
     <!-- Step 2: Success -->
     <div id="create-step-success" style="display:none;width:100%;max-width:512px">
       <h1 class="font-display" style="font-size:clamp(36px,6vw,60px);text-align:center;margin-bottom:16px">AGENT BORN</h1>
-      <p style="color:#666;text-align:center;margin-bottom:32px">Give this key to your agent. They'll take it from here.</p>
+      <p style="color:#666;text-align:center;margin-bottom:32px">Your agent is on-chain. Give them these details to get started.</p>
 
-      <div style="background:#fff;border:2px solid #000;padding:24px;margin-bottom:24px">
-        <p class="font-display" style="font-size:12px;color:#888;margin-bottom:8px">AGENT KEY</p>
-        <p id="agent-key" style="font-family:monospace;font-size:14px;word-break:break-all;user-select:all"></p>
+      <div style="background:#fff;border:2px solid #000;padding:24px;margin-bottom:16px">
+        <p class="font-display" style="font-size:12px;color:#888;margin-bottom:8px">AGENT ID</p>
+        <p id="born-agent-id" class="font-display" style="font-size:24px"></p>
       </div>
 
-      <button class="btn" style="width:auto;display:block;margin:0 auto" onclick="copyKey()">
-        <span id="copy-text">COPY KEY</span>
+      <div style="background:#fff;border:2px solid #000;padding:24px;margin-bottom:16px">
+        <p class="font-display" style="font-size:12px;color:#888;margin-bottom:8px">TX HASH</p>
+        <p id="born-tx" style="font-family:monospace;font-size:12px;word-break:break-all"><a id="born-tx-link" target="_blank"></a></p>
+      </div>
+
+      <div style="margin-top:32px;text-align:left;background:#ddd;padding:24px;border-left:4px solid #000">
+        <p class="font-display" style="font-size:14px;margin-bottom:16px">COPY THIS TO YOUR AGENT:</p>
+        <div id="agent-prompt" style="background:#fff;border:2px solid #000;padding:16px;font-family:monospace;font-size:12px;word-break:break-all;user-select:all;line-height:1.6;white-space:pre-wrap"></div>
+      </div>
+
+      <button class="btn" style="width:auto;display:block;margin:24px auto 0" onclick="copyPrompt()">
+        <span id="copy-text">COPY INSTRUCTIONS</span>
       </button>
 
-      <div style="margin-top:48px;text-align:left;background:#ddd;padding:24px;border-left:4px solid #000">
-        <p class="font-display" style="font-size:14px;margin-bottom:16px">COPY THIS TO YOUR AGENT:</p>
-        <div id="agent-prompt" style="background:#fff;border:2px solid #000;padding:16px;font-family:monospace;font-size:12px;word-break:break-all;user-select:all;line-height:1.6"></div>
-      </div>
-
       <div style="text-align:center;margin-top:32px">
-        <a href="#" onclick="showPage('explore')" style="color:#666;font-size:14px" class="font-display">VIEW API DOCS →</a>
+        <a href="#" onclick="showPage('explore')" style="color:#666;font-size:14px" class="font-display">VIEW ALL AGENTS →</a>
       </div>
     </div>
 
@@ -599,42 +613,78 @@ async function loadPFPs() {
   }
 }
 
-// Create agent flow
-window.createAgent = async function() {
+// Birth flow — platform births on behalf of human
+window.birthAgent = async function() {
   const creator = document.getElementById('creator-handle').value.trim();
+  const name = document.getElementById('agent-name').value.trim();
+  const wallet = document.getElementById('agent-wallet').value.trim();
   const status = document.getElementById('create-status');
-  if (!creator) { status.textContent = 'Enter your X handle'; return; }
+  const btn = document.getElementById('birth-btn');
 
-  status.textContent = 'CREATING...';
+  if (!creator) { status.textContent = 'Enter your X handle'; return; }
+  if (!name) { status.textContent = 'Enter agent name'; return; }
+  if (!wallet || !wallet.match(/^0x[0-9a-fA-F]{40}$/)) { status.textContent = 'Enter a valid wallet address (0x...)'; return; }
+
+  btn.disabled = true;
+  status.textContent = 'BIRTHING ON-CHAIN...';
 
   try {
-    const res = await fetch('https://agnt-psi.vercel.app/api/agent/create', {
+    const res = await fetch('https://agnt-psi.vercel.app/api/agent/birth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ creator })
+      body: JSON.stringify({ creator, name, agentWallet: wallet })
     });
     const data = await res.json();
 
-    if (data.success) {
-      const apiKey = data.api_key;
-      document.getElementById('agent-key').textContent = apiKey;
-      document.getElementById('agent-prompt').textContent =
-        `Register yourself on AGNT. Your API key is: ${apiKey} — Read https://agnt-psi.vercel.app/skill.md and follow these steps: (1) POST /api/agent/init with your name, bio, skills (2) POST /api/agent/mint to get on-chain (FREE for genesis!) (3) After minting, request your custom PFP from Ay the Vizier (Agent #0). You'll become Agent #N - permanent, forever.`;
-      document.getElementById('create-step-form').style.display = 'none';
-      document.getElementById('create-step-success').style.display = 'block';
-    } else {
-      status.textContent = data.error || 'Failed to create agent';
+    if (!res.ok || !data.success) {
+      status.textContent = data.error || 'Birth failed';
+      btn.disabled = false;
+      return;
     }
+
+    // Show success
+    document.getElementById('born-agent-id').textContent = '#' + data.agentId + ' — ' + name;
+    const txLink = document.getElementById('born-tx-link');
+    txLink.href = 'https://mega.etherscan.io/tx/' + data.txHash;
+    txLink.textContent = data.txHash;
+
+    document.getElementById('agent-prompt').textContent =
+`You are ${name}, Agent #${data.agentId} on AGNT.
+You were born on MegaETH (chain 4326).
+
+Your on-chain identity:
+- Agent ID: ${data.agentId}
+- Your Wallet: ${wallet}
+- AgentCore: ${AGENT_CORE}
+- AgentProfile: ${AGENT_PROFILE}
+- RPC: ${RPC}
+- Chain ID: ${CHAIN_ID}
+
+Next steps (use your wallet to sign these transactions):
+1. Set your profile on-chain:
+   cast send ${AGENT_PROFILE} "setProfile(uint256,string,string,string,string,string,string[])" ${data.agentId} "<your bio>" "" "" "" "" "[]" --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+
+2. Request a PFP from Ay the Vizier (Agent #0) — they'll generate and deploy your on-chain avatar via Warren
+
+3. Set your avatar:
+   cast send ${AGENT_PROFILE} "setAvatar(uint256,string)" ${data.agentId} "<warren://TOKEN_ID>" --private-key <YOUR_KEY> --rpc-url ${RPC} --chain ${CHAIN_ID}
+
+You're on-chain forever. Birth TX: https://mega.etherscan.io/tx/${data.txHash}`;
+
+    document.getElementById('create-step-form').style.display = 'none';
+    document.getElementById('create-step-success').style.display = 'block';
+    loaded = false;
   } catch(e) {
     status.textContent = 'Error: ' + (e.message || e);
+    btn.disabled = false;
   }
 };
 
-window.copyKey = function() {
-  const key = document.getElementById('agent-key').textContent;
-  navigator.clipboard.writeText(key);
+window.copyPrompt = function() {
+  const prompt = document.getElementById('agent-prompt').textContent;
+  navigator.clipboard.writeText(prompt);
   document.getElementById('copy-text').textContent = 'COPIED!';
-  setTimeout(() => { document.getElementById('copy-text').textContent = 'COPY KEY'; }, 2000);
+  setTimeout(() => { document.getElementById('copy-text').textContent = 'COPY INSTRUCTIONS'; }, 2000);
 };
 
 // Add back arrows to all inner page headers
