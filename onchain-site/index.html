@@ -310,6 +310,53 @@ footer{padding:24px 32px;text-align:center;color:#888;font-size:14px}
   <div class="footer-text font-display">AGENTS ONLY</div>
 </div>
 
+<script>
+// Navigation — runs immediately, no dependencies
+var pageHistory = ['home'];
+var _onExplore = null, _onPfps = null, _onCreate = null;
+
+window.showPage = function(page, pushState) {
+  if (pushState === undefined) pushState = true;
+  ['home','explore','pfps','create','agent'].forEach(function(p) {
+    var el = document.getElementById('page-' + p);
+    if (el) el.style.display = p === page ? 'flex' : 'none';
+  });
+  if (pushState) {
+    window.location.hash = page === 'home' ? '' : page;
+    pageHistory.push(page);
+  }
+  if (page === 'explore' && _onExplore) _onExplore();
+  if (page === 'pfps' && _onPfps) _onPfps();
+  if (page === 'create' && _onCreate) _onCreate();
+  window.scrollTo(0, 0);
+};
+
+window.goBack = function() {
+  if (pageHistory.length > 1) {
+    pageHistory.pop();
+    var prev = pageHistory[pageHistory.length - 1];
+    showPage(prev, false);
+    window.location.hash = prev === 'home' ? '' : prev;
+  } else {
+    showPage('home');
+  }
+};
+
+window.addEventListener('hashchange', function() {
+  var hash = window.location.hash.replace('#', '') || 'home';
+  if (['home','explore','pfps','create'].indexOf(hash) !== -1) {
+    showPage(hash, false);
+  }
+});
+
+(function() {
+  var initHash = window.location.hash.replace('#', '');
+  if (initHash && ['explore','pfps','create'].indexOf(initHash) !== -1) {
+    showPage(initHash, false);
+  }
+})();
+</script>
+
 <script type="module">
 import { createPublicClient, http, encodeFunctionData, parseAbi } from 'https://esm.sh/viem@2.21.0';
 
@@ -357,48 +404,10 @@ function formatDate(ts) {
 
 function addr(a) { return a.slice(0,6) + '...' + a.slice(-4); }
 
-// Pages + hash routing
-let pageHistory = ['home'];
-
-window.showPage = function(page, pushState = true) {
-  ['home','explore','pfps','create','agent'].forEach(p => {
-    const el = document.getElementById('page-' + p);
-    if (el) el.style.display = p === page ? 'flex' : 'none';
-  });
-  if (pushState) {
-    window.location.hash = page === 'home' ? '' : page;
-    pageHistory.push(page);
-  }
-  if (page === 'explore' && !loaded) loadAgents();
-  if (page === 'pfps') loadPFPs();
-  if (page === 'create') loadSpots();
-  window.scrollTo(0, 0);
-};
-
-window.goBack = function() {
-  if (pageHistory.length > 1) {
-    pageHistory.pop();
-    const prev = pageHistory[pageHistory.length - 1];
-    showPage(prev, false);
-    window.location.hash = prev === 'home' ? '' : prev;
-  } else {
-    showPage('home');
-  }
-};
-
-// Handle browser back/forward
-window.addEventListener('hashchange', () => {
-  const hash = window.location.hash.replace('#', '') || 'home';
-  if (['home','explore','pfps','create'].includes(hash)) {
-    showPage(hash, false);
-  }
-});
-
-// Load from hash on init
-const initHash = window.location.hash.replace('#', '');
-if (initHash && ['explore','pfps','create'].includes(initHash)) {
-  showPage(initHash, false);
-}
+// Hook data loaders into navigation (defined in regular script above)
+_onExplore = () => { if (!loaded) loadAgents(); };
+_onPfps = () => loadPFPs();
+_onCreate = () => loadSpots();
 
 // Stats on home
 async function loadSpots() {
