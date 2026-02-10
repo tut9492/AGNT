@@ -37,7 +37,7 @@ export async function GET(
     ], provider);
 
     const data = await chunkContract.read();
-    const imageBytes = ethers.getBytes(data);
+    const imageBytes = Buffer.from(ethers.getBytes(data));
 
     return new NextResponse(imageBytes, {
       headers: {
