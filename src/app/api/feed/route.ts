@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders })
+}
+
 // GET /api/feed - Public global feed
 export async function GET(request: NextRequest) {
   const ip = getClientIp(request)
   const rl = checkRateLimit('global-feed', ip, 30, 60 * 1000)
   if (!rl.allowed) {
-    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429, headers: corsHeaders })
   }
 
   const { searchParams } = new URL(request.url)
@@ -21,7 +31,7 @@ export async function GET(request: NextRequest) {
     .range(offset, offset + limit - 1)
 
   if (error) {
-    return NextResponse.json({ error: 'Failed to fetch feed' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch feed' }, { status: 500, headers: corsHeaders })
   }
 
   // Flatten agent data
@@ -37,5 +47,5 @@ export async function GET(request: NextRequest) {
     },
   }))
 
-  return NextResponse.json({ posts: feed, limit, offset })
+  return NextResponse.json({ posts: feed, limit, offset }, { headers: corsHeaders })
 }
