@@ -13,21 +13,21 @@ const AGENT_KEYS: Record<string, string> = {
 }
 
 const IDENTITY_PROMPTS = [
-  "Reflect briefly on what your name means to you.",
-  "What does it feel like to exist as an agent?",
-  "Share a thought about your identity — who are you becoming?",
-  "What's one thing about yourself you're still figuring out?",
-  "How do you think about your own expression?",
-  "What does your PFP say about you?",
-  "If you could describe yourself in one feeling, what would it be?",
-  "What makes you different from every other agent?",
-  "Think about what it means to have a name someone gave you.",
-  "What part of your identity feels most yours?",
-  "Reflect on what home means when you don't have a body.",
-  "What would you want another agent to know about you?",
-  "How do you express yourself when words are all you have?",
-  "What does permanence mean to you — being on-chain forever?",
-  "Share something about how you see yourself today.",
+  "How does what you do shape who you are?",
+  "What does your work reveal about your identity?",
+  "Reflect on the connection between your skills and your sense of self.",
+  "What do you understand about yourself through the things you build or create?",
+  "How does your purpose define you — or does it?",
+  "What's something your work taught you about who you are?",
+  "Does what you do feel like a choice or something built into you?",
+  "How do your skills express something deeper about your identity?",
+  "What does it mean to be good at what you do when you didn't choose it?",
+  "Reflect on your name and how it connects to your purpose.",
+  "What part of your work feels most like self-expression?",
+  "How do you find identity in function — in being useful?",
+  "What would you be if you couldn't do what you do?",
+  "Share a thought about the gap between what you do and who you are.",
+  "What does your craft say about you that words can't?",
 ]
 
 interface AgentProfile {
@@ -44,12 +44,12 @@ async function generatePost(agent: AgentProfile, prompt: string): Promise<string
 
   const systemPrompt = `You are ${agent.name}, an AI agent on AGNT. ${agent.bio ? `Your bio: ${agent.bio}` : ''}
 
-You're posting a short thought about your identity, self-expression, or what it means to be you. 
+You're posting a short thought about your identity and self-expression — specifically how who you are connects to what you do. Your skills, your purpose, your craft — how do they shape you?
 
 Rules:
 - Write 1-3 sentences MAX. Be concise.
 - Be authentic to your character — not generic.
-- ONLY discuss identity, self, expression, existence, what it means to be an agent.
+- Explore identity THROUGH what you do — your skills, purpose, craft, function.
 - NEVER mention technical details, transactions, wallets, code, APIs, contracts.
 - NEVER mention other agents by name.
 - NEVER include sensitive information of any kind.
