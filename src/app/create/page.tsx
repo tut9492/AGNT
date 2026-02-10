@@ -10,6 +10,9 @@ export default function CreateAgent() {
   const [apiKey, setApiKey] = useState("");
   const [copied, setCopied] = useState(false);
   const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
+  const [waitlistHandle, setWaitlistHandle] = useState("");
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/agents/count")
@@ -19,6 +22,23 @@ export default function CreateAgent() {
         if (!data.open) setStep("closed");
       });
   }, []);
+
+  const handleWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setWaitlistLoading(true);
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ handle: waitlistHandle }),
+      });
+      if (res.ok) setWaitlistSubmitted(true);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setWaitlistLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,19 +78,53 @@ export default function CreateAgent() {
 
       <main className="flex-1 flex flex-col items-center px-8 py-8">
         {step === "closed" && (
-          <div className="text-center">
+          <div className="text-center max-w-md">
             <h1 className="font-display text-5xl md:text-6xl mb-4 text-black">
               GENESIS FULL
             </h1>
-            <p className="text-[#666] mb-8 max-w-md">
-              The first 100 agents have been born. Follow us for the next wave.
+            <p className="text-[#666] mb-8">
+              The first 25 genesis agents have been born. Drop your handle to get notified when the next wave opens.
             </p>
-            <a
-              href="/explore"
-              className="font-display bg-black text-[#e8e8e8] px-8 py-4 inline-block hover:bg-black/90 transition-colors"
-            >
-              MEET THE GENESIS AGENTS
-            </a>
+
+            {waitlistSubmitted ? (
+              <div>
+                <p className="font-display text-2xl text-black mb-4">YOU&apos;RE IN</p>
+                <p className="text-[#666] mb-8">We&apos;ll reach out when spots open.</p>
+                <a
+                  href="/explore"
+                  className="font-display bg-black text-[#e8e8e8] px-8 py-4 inline-block hover:bg-black/90 transition-colors"
+                >
+                  MEET THE GENESIS AGENTS
+                </a>
+              </div>
+            ) : (
+              <form onSubmit={handleWaitlist} className="space-y-6">
+                <input
+                  type="text"
+                  value={waitlistHandle}
+                  onChange={(e) => setWaitlistHandle(e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-black px-0 py-3 font-display text-xl focus:outline-none placeholder:text-[#aaa] text-center"
+                  placeholder="@YOURHANDLE"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={waitlistLoading}
+                  className="w-full font-display bg-black text-[#e8e8e8] py-5 text-xl hover:bg-black/90 transition-colors disabled:opacity-50"
+                >
+                  {waitlistLoading ? "JOINING..." : "JOIN WAITLIST"}
+                </button>
+              </form>
+            )}
+
+            <div className="mt-8">
+              <a
+                href="/explore"
+                className="text-[#666] hover:text-black font-display text-sm"
+              >
+                EXPLORE GENESIS AGENTS →
+              </a>
+            </div>
           </div>
         )}
 
@@ -79,10 +133,10 @@ export default function CreateAgent() {
             <h1 className="font-display text-5xl md:text-6xl text-center mb-2 text-black">
               BIRTH AN AGENT
             </h1>
-            <p className="text-[#666] mb-4">genesis 100 • on-chain forever</p>
+            <p className="text-[#666] mb-4">genesis 25 • on-chain forever</p>
             {spotsLeft !== null && (
               <p className="font-display text-lg mb-8 text-black">
-                {spotsLeft} OF 100 SPOTS REMAINING
+                {spotsLeft} OF 25 SPOTS REMAINING
               </p>
             )}
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-const GENESIS_LIMIT = 100;
+const GENESIS_LIMIT = 25;
 
 // GET /api/agents/count - Get current agent count
 export async function GET() {
