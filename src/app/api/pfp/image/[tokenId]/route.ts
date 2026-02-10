@@ -13,10 +13,11 @@ const AGENT_PFP = '0x1efc83da54AD560faB5859AC2d018A16cd59cFd7';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { tokenId: string } }
+  { params }: { params: Promise<{ tokenId: string }> }
 ) {
   try {
-    const tokenId = parseInt(params.tokenId);
+    const { tokenId: tokenIdStr } = await params;
+    const tokenId = parseInt(tokenIdStr);
     if (isNaN(tokenId) || tokenId < 1) {
       return new NextResponse('invalid tokenId', { status: 400 });
     }

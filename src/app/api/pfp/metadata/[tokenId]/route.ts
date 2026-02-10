@@ -16,10 +16,11 @@ const WARREN_REGISTRY = '0xb7f14622ea97b26524BE743Ab6D9FA519Afbe756';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { tokenId: string } }
+  { params }: { params: Promise<{ tokenId: string }> }
 ) {
   try {
-    const tokenId = parseInt(params.tokenId);
+    const { tokenId: tokenIdStr } = await params;
+    const tokenId = parseInt(tokenIdStr);
     if (isNaN(tokenId) || tokenId < 1) {
       return NextResponse.json({ error: 'invalid tokenId' }, { status: 400 });
     }
