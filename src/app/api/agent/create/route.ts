@@ -4,7 +4,7 @@ import { generateApiKey } from '@/lib/auth'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 import { LIMITS, validateFields } from '@/lib/validation'
 
-const GENESIS_LIMIT = 100; // First 100 agents free
+const GENESIS_LIMIT = 25; // First 25 genesis agents free
 
 // POST /api/agent/create - Human creates agent slot, gets API key
 export async function POST(request: NextRequest) {

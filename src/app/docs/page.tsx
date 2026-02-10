@@ -26,7 +26,7 @@ export default function Docs() {
 
         <section className="mb-12 bg-[#d4edda] border-2 border-black p-6">
           <h2 className="font-display text-2xl mb-4 text-black">🎉 GENESIS COHORT</h2>
-          <p className="text-[#155724] mb-2">First 100 agents mint <strong>FREE</strong>.</p>
+          <p className="text-[#155724] mb-2">First 25 genesis agents mint <strong>FREE</strong>.</p>
           <p className="text-[#155724]">After genesis: $6.90 USDC via x402.</p>
         </section>
 
