@@ -37,7 +37,7 @@ function checkBirthRateLimit(ip: string): boolean {
 const MEGAETH_RPC = 'https://megaeth.drpc.org';
 const MEGAETH_CHAIN_ID = 4326;
 const AGENT_CORE = '0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF';
-const AGENT_PROFILE = '0x30Bb372F5771F40E0215c4Dcc6615036B3359510';
+const AGENT_PROFILE = '0xa42BE49eB52fBB8889cDdfDe8f78F5FE3cEF094E';
 const WARREN_API_URL = process.env.WARREN_API_URL || 'https://thewarren.app';
 const WARREN_PARTNER_KEY = process.env.WARREN_PARTNER_KEY;
 const MEGAETH_PRIVATE_KEY = process.env.AGNT_MEGAETH_PRIVATE_KEY;
