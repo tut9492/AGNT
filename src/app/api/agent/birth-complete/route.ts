@@ -185,32 +185,24 @@ export async function POST(req: NextRequest) {
     const warrenUri = `warren://${deployment.tokenId}`;
     console.log(`PFP deployed: ${warrenUri}`);
 
-    // Step 4: Mint PFP NFT on AgentPFP collection + transfer to agent
-    const AGENT_PFP = '0x3566B44f7c77ec8F6b54862e7C4a8Ba480F71E0f';
+    // Step 4: Mint PFP NFT directly to agent wallet on AgentPFP v2
+    const AGENT_PFP = '0x1efc83da54AD560faB5859AC2d018A16cd59cFd7';
     const pfpAbi = [
-      'function mint(uint256 agentId, address site) payable',
+      'function mintTo(address to, uint256 agentId, address site) payable',
       'function agentTokenId(uint256) view returns (uint256)',
-      'function transferFrom(address from, address to, uint256 tokenId)',
     ];
     const pfpContract = new ethers.Contract(AGENT_PFP, pfpAbi, platformWallet);
 
     let pfpTokenId: number | null = null;
     try {
-      // Mint — platform owns initially
-      const mintTx = await pfpContract.mint(agentId, deployment.rootChunk);
+      // Mint directly to agent's wallet — no transfer needed
+      const mintTx = await pfpContract.mintTo(wallet, agentId, deployment.rootChunk);
       await mintTx.wait();
       
-      // Get token ID
       pfpTokenId = Number(await pfpContract.agentTokenId(agentId));
-      
-      // Transfer to agent wallet
-      if (pfpTokenId > 0) {
-        const transferTx = await pfpContract.transferFrom(platformWallet.address, wallet, pfpTokenId);
-        await transferTx.wait();
-        console.log(`PFP NFT #${pfpTokenId} minted and transferred to ${wallet}`);
-      }
+      console.log(`PFP NFT #${pfpTokenId} minted to ${wallet}`);
     } catch (err) {
-      console.error('PFP NFT mint/transfer failed (non-fatal):', err);
+      console.error('PFP NFT mint failed (non-fatal):', err);
       // Non-fatal — agent still has warren:// URI for avatar
     }
 

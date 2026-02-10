@@ -11,7 +11,7 @@ import { ethers } from 'ethers';
 const MEGAETH_RPC = 'https://megaeth.drpc.org';
 const AGENT_CORE = '0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF';
 const AGENT_PROFILE = '0xa42BE49eB52fBB8889cDdfDe8f78F5FE3cEF094E';
-const AGENT_PFP = '0x3566B44f7c77ec8F6b54862e7C4a8Ba480F71E0f';
+const AGENT_PFP = '0x1efc83da54AD560faB5859AC2d018A16cd59cFd7';
 const WARREN_REGISTRY = '0xb7f14622ea97b26524BE743Ab6D9FA519Afbe756';
 
 export async function GET(

@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title AgentPFP
@@ -23,6 +24,8 @@ contract AgentPFP is ERC721, Ownable {
     uint256 public nextTokenId = 1;
     uint256 public freeMints = 100;
     uint256 public mintPrice = 0;
+    string private _baseTokenURI;
+    string private _contractURI;
 
     // tokenId → linked Warren content addresses (compatible with onchain-loader explorer)
     mapping(uint256 => address[]) private _linkedSites;
@@ -115,6 +118,26 @@ contract AgentPFP is ERC721, Ownable {
 
         _linkedSites[tokenId].push(site);
         emit SiteLinked(tokenId, site);
+    }
+
+    // ── Metadata (OpenSea) ───────────────────────────────
+
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        require(tokenId > 0 && tokenId < nextTokenId, "Token does not exist");
+        if (bytes(_baseTokenURI).length == 0) return "";
+        return string(abi.encodePacked(_baseTokenURI, Strings.toString(tokenId)));
+    }
+
+    function contractURI() public view returns (string memory) {
+        return _contractURI;
+    }
+
+    function setBaseURI(string calldata baseURI) external onlyOwner {
+        _baseTokenURI = baseURI;
+    }
+
+    function setContractURI(string calldata uri) external onlyOwner {
+        _contractURI = uri;
     }
 
     // ── Admin ──────────────────────────────────────────────

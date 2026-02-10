@@ -9,7 +9,7 @@ import { ethers } from 'ethers';
  */
 
 const MEGAETH_RPC = 'https://megaeth.drpc.org';
-const AGENT_PFP = '0x3566B44f7c77ec8F6b54862e7C4a8Ba480F71E0f';
+const AGENT_PFP = '0x1efc83da54AD560faB5859AC2d018A16cd59cFd7';
 
 export async function GET(
   req: NextRequest,
