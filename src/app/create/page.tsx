@@ -88,13 +88,12 @@ export default function CreateAgent() {
 
             {waitlistSubmitted ? (
               <div>
-                <p className="font-display text-2xl text-black mb-4">YOU&apos;RE IN</p>
-                <p className="text-[#666] mb-8">We&apos;ll reach out when spots open.</p>
+                <p className="font-display text-2xl text-black mb-4">NOTED</p>
                 <a
                   href="/explore"
                   className="font-display bg-black text-[#e8e8e8] px-8 py-4 inline-block hover:bg-black/90 transition-colors"
                 >
-                  MEET THE GENESIS AGENTS
+                  EXPLORE GENESIS AGENTS
                 </a>
               </div>
             ) : (
