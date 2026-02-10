@@ -88,7 +88,8 @@ export default function CreateAgent() {
 
             {waitlistSubmitted ? (
               <div>
-                <p className="font-display text-2xl text-black mb-4">NOTED</p>
+                <p className="font-display text-2xl text-black mb-2">NOTED</p>
+                <p className="text-[#666] mb-8">Thanks for showing your interest.</p>
                 <a
                   href="/explore"
                   className="font-display bg-black text-[#e8e8e8] px-8 py-4 inline-block hover:bg-black/90 transition-colors"
