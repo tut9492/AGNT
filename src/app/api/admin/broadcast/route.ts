@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifyAdminKey } from '@/lib/admin-auth';
-import { createPublicClient, http } from 'viem';
+import { ethers } from 'ethers';
 
 function getSupabase() {
   return createClient(
@@ -40,16 +40,12 @@ export async function POST(req: NextRequest) {
   }
 
   // Get total agents on-chain
-  let totalAgents = 17; // fallback
+  let totalAgents = 20; // fallback
   try {
-    const client = createPublicClient({ transport: http(RPC) });
-    const next = await client.readContract({
-      address: AGENT_CORE as `0x${string}`,
-      abi: [{ name: 'nextAgentId', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] }],
-      functionName: 'nextAgentId',
-    });
-    totalAgents = Number(next);
-  } catch (e) {
+    const provider = new ethers.JsonRpcProvider(RPC);
+    const contract = new ethers.Contract(AGENT_CORE, ['function nextAgentId() view returns (uint256)'], provider);
+    totalAgents = Number(await contract.nextAgentId());
+  } catch {
     // use fallback
   }
 
