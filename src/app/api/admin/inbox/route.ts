@@ -52,7 +52,8 @@ export async function POST(req: NextRequest) {
     action_data: actionData || null,
   }));
 
-  const { data, error } = await supabase
+  const sb = getSupabase();
+  const { data, error } = await sb
     .from('agent_inbox')
     .insert(rows)
     .select('id, agent_id');
