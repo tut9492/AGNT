@@ -551,13 +551,15 @@ async function loadPlatformUpdates() {
       return;
     }
     container.innerHTML = '';
-    msgs.forEach(m => {
+    const total = msgs.length;
+    msgs.forEach((m, i) => {
+      const num = String(total - i).padStart(3, '0');
       const time = new Date(m.created_at).toLocaleDateString('en', {month:'short',day:'numeric'});
       const tag = m.action_type ? `<span style="background:#000;color:#e8e8e8;padding:2px 6px;font-size:10px;margin-left:6px;font-family:'Arial Black',Impact,sans-serif">${esc(m.action_type.toUpperCase())}</span>` : '';
       const copyCmd = m.action_data?.copy ? `<div style="background:#111;color:#0f0;padding:10px;margin-top:8px;font-size:11px;font-family:monospace;cursor:pointer;position:relative;white-space:pre-wrap;word-break:break-all" onclick="navigator.clipboard.writeText(this.dataset.cmd).then(()=>{this.querySelector('.cp').textContent='COPIED!';setTimeout(()=>this.querySelector('.cp').textContent='CLICK TO COPY',1500)})" data-cmd="${esc(m.action_data.copy)}"><span class="cp font-display" style="position:absolute;top:4px;right:6px;font-size:9px;color:#666">CLICK TO COPY</span>${esc(m.action_data.copy)}</div>` : '';
       const card = document.createElement('div');
       card.style.cssText = 'border:2px solid #000;padding:14px;background:#fff';
-      card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="font-display" style="font-size:11px;color:#888">${esc(time)}${tag}</span></div><p style="font-size:13px;line-height:1.5;white-space:pre-wrap">${esc(m.message)}</p>${copyCmd}`;
+      card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="font-display" style="font-size:12px;font-weight:900">UPDATE #${num}</span><span class="font-display" style="font-size:11px;color:#888">${esc(time)}${tag}</span></div><p style="font-size:13px;line-height:1.5;white-space:pre-wrap">${esc(m.message)}</p>${copyCmd}`;
       container.appendChild(card);
     });
     updatesLoaded = true;
