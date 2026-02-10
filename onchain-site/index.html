@@ -523,7 +523,7 @@ async function loadSpots() {
   try {
     const f = await client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: 'freeMintsRemaining' });
     const remaining = Number(f);
-    document.getElementById('spots-left').textContent = remaining + ' OF 100 SPOTS REMAINING';
+    document.getElementById('spots-left').textContent = remaining + ' OF 25 SPOTS REMAINING';
     if (remaining === 0) {
       document.getElementById('create-step-form').style.display = 'none';
       document.getElementById('create-step-closed').style.display = 'block';
