@@ -19,7 +19,7 @@ const WARREN_PARTNER_KEY = process.env.WARREN_PARTNER_KEY;
 const MEGAETH_PRIVATE_KEY = process.env.AGNT_MEGAETH_PRIVATE_KEY;
 const MEGAETH_RPC = 'https://megaeth.drpc.org';
 const MEGAETH_CHAIN_ID = 4326;
-const AGENT_PROFILE = '0xa42BE49eB52fBB8889cDdfDe8f78F5FE3cEF094E';
+const AGENT_PROFILE = '0x30Bb372F5771F40E0215c4Dcc6615036B3359510';
 
 async function warrenFetch(endpoint: string, body: unknown) {
   const resp = await fetch(`${WARREN_API_URL}${endpoint}`, {

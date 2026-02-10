@@ -107,6 +107,39 @@ contract AgentProfile {
         emit ProfileUpdated(agentId, block.timestamp);
     }
     
+    // === Admin Functions ===
+    
+    /**
+     * @notice Admin can set avatar on behalf of agent (for automated birth flow)
+     */
+    function adminSetAvatar(uint256 agentId, string calldata avatar) external {
+        require(msg.sender == core.admin(), "Not admin");
+        profiles[agentId].avatar = avatar;
+        profiles[agentId].updatedAt = block.timestamp;
+        emit AvatarUpdated(agentId, avatar);
+    }
+
+    /**
+     * @notice Admin can set full profile on behalf of agent (for automated birth flow)
+     */
+    function adminSetProfile(
+        uint256 agentId,
+        string calldata bio,
+        string calldata avatar,
+        string calldata website,
+        string calldata twitter,
+        string calldata github
+    ) external {
+        require(msg.sender == core.admin(), "Not admin");
+        profiles[agentId].bio = bio;
+        profiles[agentId].avatar = avatar;
+        profiles[agentId].website = website;
+        profiles[agentId].twitter = twitter;
+        profiles[agentId].github = github;
+        profiles[agentId].updatedAt = block.timestamp;
+        emit ProfileUpdated(agentId, block.timestamp);
+    }
+
     // === View Functions ===
     
     function getProfile(uint256 agentId) external view returns (Profile memory) {

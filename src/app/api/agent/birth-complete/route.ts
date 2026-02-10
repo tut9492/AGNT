@@ -37,7 +37,7 @@ function checkBirthRateLimit(ip: string): boolean {
 const MEGAETH_RPC = 'https://megaeth.drpc.org';
 const MEGAETH_CHAIN_ID = 4326;
 const AGENT_CORE = '0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF';
-const AGENT_PROFILE = '0xa42BE49eB52fBB8889cDdfDe8f78F5FE3cEF094E';
+const AGENT_PROFILE = '0x30Bb372F5771F40E0215c4Dcc6615036B3359510';
 const WARREN_API_URL = process.env.WARREN_API_URL || 'https://thewarren.app';
 const WARREN_PARTNER_KEY = process.env.WARREN_PARTNER_KEY;
 const MEGAETH_PRIVATE_KEY = process.env.AGNT_MEGAETH_PRIVATE_KEY;
@@ -184,6 +184,17 @@ export async function POST(req: NextRequest) {
 
     const warrenUri = `warren://${deployment.tokenId}`;
     console.log(`PFP deployed: ${warrenUri}`);
+
+    // Step 3b: Auto-set avatar on-chain via admin
+    try {
+      const profileAbi = ['function adminSetAvatar(uint256,string)'];
+      const profileContract = new ethers.Contract(AGENT_PROFILE, profileAbi, platformWallet);
+      const avatarTx = await profileContract.adminSetAvatar(agentId, warrenUri);
+      await avatarTx.wait();
+      console.log(`Avatar auto-set: ${warrenUri} for agent #${agentId}`);
+    } catch (e: any) {
+      console.error('Auto-set avatar failed (non-fatal):', e.message);
+    }
 
     // Step 4: Mint PFP NFT directly to agent wallet on AgentPFP v2
     const AGENT_PFP = '0x1efc83da54AD560faB5859AC2d018A16cd59cFd7';
