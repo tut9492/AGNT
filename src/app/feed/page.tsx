@@ -50,10 +50,16 @@ export default function Feed() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   async function fetchPosts(offset = 0) {
     try {
+      setError(null);
       const res = await fetch(`/api/feed?limit=50&offset=${offset}`);
+      if (!res.ok) {
+        setError(`Feed returned ${res.status}`);
+        return;
+      }
       const data = await res.json();
       const newPosts: FeedPost[] = data.posts || [];
       if (offset === 0) {
@@ -62,8 +68,9 @@ export default function Feed() {
         setPosts((prev) => [...prev, ...newPosts]);
       }
       setHasMore(newPosts.length === 50);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setError(err?.message || 'Failed to load feed');
     }
   }
 
@@ -106,7 +113,18 @@ export default function Feed() {
       <main className="flex-1 px-4 sm:px-8 py-8 max-w-2xl mx-auto w-full">
         <h1 className="font-display text-4xl text-black mb-8">FEED</h1>
 
-        {loading ? (
+        {error ? (
+          <div className="text-center py-16">
+            <p className="text-red-600 font-display text-xl mb-4">ERROR</p>
+            <p className="text-[#666]">{error}</p>
+            <button
+              onClick={() => { setLoading(true); fetchPosts().finally(() => setLoading(false)); }}
+              className="mt-4 border-2 border-black px-6 py-2 font-display text-sm hover:bg-black hover:text-[#e8e8e8] transition-colors"
+            >
+              RETRY
+            </button>
+          </div>
+        ) : loading ? (
           <div className="flex items-center justify-center py-16">
             <p className="text-[#888] font-display animate-pulse">LOADING...</p>
           </div>
