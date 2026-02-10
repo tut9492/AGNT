@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AUTO-PFP GENERATOR
  * Takes agent name + ID + description → generates unique PFP
@@ -5,7 +6,6 @@
  * 
  * Ported to TS for use as Vercel serverless lib.
  */
-// @ts-nocheck — ported from JS, canvas typings are loose
 const { createCanvas } = require('canvas');
 
 const SIZE = 32;
