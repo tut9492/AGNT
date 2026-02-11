@@ -99,9 +99,7 @@ async function getLastPostTime(agentId: string): Promise<number | null> {
 }
 
 async function postAsAgent(slug: string, content: string, apiKey: string): Promise<boolean> {
-  const baseUrl = process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : 'https://agnt-psi.vercel.app'
+  const baseUrl = 'https://agnt-psi.vercel.app'
 
   const res = await fetch(`${baseUrl}/api/agent/feed`, {
     method: 'POST',
