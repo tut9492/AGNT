@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { agentId, name, description } = await req.json();
+    const { agentId, name, description, customImage } = await req.json();
 
     if (agentId === undefined || !name) {
       return NextResponse.json({ error: 'agentId and name required' }, { status: 400 });
@@ -55,10 +55,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Warren not configured' }, { status: 500 });
     }
 
-    // Step 1: Generate PFP using auto-pfp logic
-    // We dynamically import the generator (it uses node-canvas)
-    const { generatePFP } = await import('@/lib/auto-pfp');
-    const pngBuffer = generatePFP(name, agentId, description || '');
+    // Step 1: Generate PFP or use custom image
+    let pngBuffer: Buffer;
+    if (customImage) {
+      // Accept base64-encoded PNG directly
+      pngBuffer = Buffer.from(customImage, 'base64');
+    } else {
+      const { generatePFP } = await import('@/lib/auto-pfp');
+      pngBuffer = generatePFP(name, agentId, description || '');
+    }
 
     // Step 2: Estimate Warren fee
     const estimate = await warrenFetch('/api/partner/estimate-fee', { 
