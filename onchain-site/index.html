@@ -396,6 +396,42 @@ window.goBack = function() {
 };
 </script>
 
+<script>
+// X OAuth — must be outside module to survive import failures
+var X_CLIENT_ID_EARLY = 'OXN4T3EzZm8tNUlsb2d4UG9JM0Q6MTpjaQ';
+var X_REDIRECT_URI_EARLY = 'https://agnt.social/';
+var X_SCOPES_EARLY = 'users.read tweet.read';
+
+function b64url_early(buffer) {
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+window.startXLogin = async function() {
+  var arr = new Uint8Array(32);
+  crypto.getRandomValues(arr);
+  var codeVerifier = b64url_early(arr);
+  var hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier));
+  var codeChallenge = b64url_early(hash);
+  var stateArr = new Uint8Array(16);
+  crypto.getRandomValues(stateArr);
+  var state = b64url_early(stateArr);
+
+  sessionStorage.setItem('agnt_cv', codeVerifier);
+  sessionStorage.setItem('agnt_state', state);
+
+  var url = new URL('https://x.com/i/oauth2/authorize');
+  url.searchParams.set('response_type', 'code');
+  url.searchParams.set('client_id', X_CLIENT_ID_EARLY);
+  url.searchParams.set('redirect_uri', X_REDIRECT_URI_EARLY);
+  url.searchParams.set('scope', X_SCOPES_EARLY);
+  url.searchParams.set('state', state);
+  url.searchParams.set('code_challenge', codeChallenge);
+  url.searchParams.set('code_challenge_method', 'S256');
+  window.location.href = url.toString();
+};
+</script>
+
 <script type="module">
 import { createPublicClient, http, encodeFunctionData, parseAbi } from 'https://esm.sh/viem@2.21.0';
 
