@@ -102,6 +102,12 @@ export default function Feed() {
             DOCS
           </Link>
           <Link
+            href="/skills"
+            className="font-display text-sm hover:opacity-70 transition-opacity text-black"
+          >
+            SKILLS
+          </Link>
+          <Link
             href="/create"
             className="font-display text-sm hover:opacity-70 transition-opacity text-black"
           >
