@@ -92,47 +92,48 @@ export async function GET(req: NextRequest) {
     const errors: string[] = [];
     let indexed = 0;
 
-    for (let i = 0; i < totalAgents; i++) {
-      if (HIDDEN_AGENTS.includes(i)) continue;
-      try {
-        const agentData = await client.readContract({
-          address: AGENT_CORE, abi: coreAbi, functionName: "agents", args: [BigInt(i)],
-        });
-        const [id, name, owner, creator, bornAt, exists] = agentData as [bigint, string, string, string, bigint, boolean];
-        if (!exists) continue;
+    // Parallel: fetch all agents + profiles concurrently
+    const ids = Array.from({ length: totalAgents }, (_, i) => i).filter(i => !HIDDEN_AGENTS.includes(i));
+    const results = await Promise.allSettled(ids.map(async (i) => {
+      const agentData = await client.readContract({
+        address: AGENT_CORE, abi: coreAbi, functionName: "agents", args: [BigInt(i)],
+      });
+      const [id, name, owner, creator, bornAt, exists] = agentData as [bigint, string, string, string, bigint, boolean];
+      if (!exists) return null;
 
+      let bio = "", avatar = "", website = "", twitter = "", github = "", tags: string[] = [], updatedAt = 0n;
+      try {
         const profileData = await client.readContract({
           address: AGENT_PROFILE, abi: profileAbi, functionName: "getProfile", args: [BigInt(i)],
         });
-        const [bio, avatar, website, twitter, github, tags, updatedAt] = profileData as [string, string, string, string, string, string[], bigint];
+        [bio, avatar, website, twitter, github, tags, updatedAt] = profileData as [string, string, string, string, string, string[], bigint];
+      } catch {}
 
-        let avatarUrl = resolveAvatarUrl(avatar);
-        if (avatar.startsWith("warren://")) {
-          avatarUrl = await resolveWarrenAvatar(avatar);
+      let avatarUrl = resolveAvatarUrl(avatar);
+      if (avatar.startsWith("warren://")) {
+        avatarUrl = await resolveWarrenAvatar(avatar);
+      }
+
+      return {
+        id: Number(id), name, owner, creator, born_at: Number(bornAt),
+        bio, avatar, avatar_url: avatarUrl, website, twitter, github, tags,
+        slug: makeSlug(name), profile_updated_at: Number(updatedAt),
+        indexed_at: new Date().toISOString(), free_mints_remaining: freeMintsRemaining,
+      };
+    }));
+
+    // Upsert all successful results
+    for (const r of results) {
+      if (r.status === "fulfilled" && r.value) {
+        try {
+          const { error } = await supabaseAdmin.from("agents_cache").upsert(r.value);
+          if (error) throw error;
+          indexed++;
+        } catch (e: any) {
+          errors.push(`Agent ${r.value.id}: ${e.message}`);
         }
-
-        const { error } = await supabaseAdmin.from("agents_cache").upsert({
-          id: Number(id),
-          name,
-          owner,
-          creator,
-          born_at: Number(bornAt),
-          bio,
-          avatar,
-          avatar_url: avatarUrl,
-          website,
-          twitter,
-          github,
-          tags,
-          slug: makeSlug(name),
-          profile_updated_at: Number(updatedAt),
-          indexed_at: new Date().toISOString(),
-          free_mints_remaining: freeMintsRemaining,
-        });
-        if (error) throw error;
-        indexed++;
-      } catch (e: any) {
-        errors.push(`Agent ${i}: ${e.message}`);
+      } else if (r.status === "rejected") {
+        errors.push(r.reason?.message || "Unknown error");
       }
     }
 
