@@ -82,6 +82,15 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Auto-create table if it doesn't exist
+    await supabaseAdmin.rpc('exec_sql', { sql: '' }).catch(() => {});
+    // Try a read first — if table doesn't exist, create it
+    const { error: tableCheck } = await supabaseAdmin.from("agents_cache").select("id").limit(1);
+    if (tableCheck?.message?.includes("does not exist")) {
+      // Table doesn't exist — we can't create via client, need manual migration
+      return NextResponse.json({ error: "Table agents_cache does not exist. Run the migration SQL first.", migration: "See supabase-agents-cache-migration.sql" }, { status: 500 });
+    }
+
     const [nextId, freeMints] = await Promise.all([
       client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: "nextAgentId" }),
       client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: "freeMintsRemaining" }),
