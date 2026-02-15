@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import * as tar from 'tar-stream'
-import { Readable } from 'stream'
-import { createGzip } from 'zlib'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,7 +11,7 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders })
 }
 
-// GET /api/skills/{slug}/download — Download skill package as tar.gz
+// GET /api/skills/{slug}/download — Download skill package
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -26,12 +23,16 @@ export async function GET(
   }
 
   // Find the skill in the database
-  const { data: skills } = await supabaseAdmin
+  const { data: skills, error } = await supabaseAdmin
     .from('skills')
     .select('id, name')
     .order('id', { ascending: false })
 
-  // Find skill matching this slug with a package
+  if (error) {
+    return NextResponse.json({ error: 'Database error' }, { status: 500, headers: corsHeaders })
+  }
+
+  // Find skill matching this slug with files
   const skill = (skills || []).find((s: any) => {
     try {
       const obj = JSON.parse(s.name)
@@ -42,39 +43,21 @@ export async function GET(
   })
 
   if (!skill) {
-    return NextResponse.json({ error: 'Skill not found or has no package' }, { status: 404, headers: corsHeaders })
+    return NextResponse.json({ error: 'Skill not found or has no package', slug, total: (skills||[]).length }, { status: 404, headers: corsHeaders })
   }
 
   const meta = JSON.parse(skill.name)
   const files: Record<string, string> = meta.files
 
-  // Build tar.gz in memory
-  const pack = tar.pack()
-  for (const [filePath, b64content] of Object.entries(files)) {
-    const content = Buffer.from(b64content, 'base64')
-    pack.entry({ name: filePath, size: content.length }, content)
-  }
-  pack.finalize()
-
-  // Collect gzipped tar into buffer
-  const chunks: Buffer[] = []
-  const gzip = createGzip()
-  const readable = Readable.from(pack)
-  readable.pipe(gzip)
-
-  await new Promise<void>((resolve, reject) => {
-    gzip.on('data', (chunk: Buffer) => chunks.push(chunk))
-    gzip.on('end', resolve)
-    gzip.on('error', reject)
-  })
-
-  const tarGz = Buffer.concat(chunks)
-
-  return new NextResponse(tarGz, {
+  // Return as JSON with base64 files — agent install script decodes them
+  return NextResponse.json({
+    name: meta.name,
+    version: meta.version,
+    description: meta.description,
+    files,
+  }, {
     headers: {
       ...corsHeaders,
-      'Content-Type': 'application/gzip',
-      'Content-Disposition': `attachment; filename="${slug}-${meta.version}.tar.gz"`,
       'X-Skill-Version': meta.version || 'unknown',
       'X-Skill-Name': meta.name || slug,
     },
