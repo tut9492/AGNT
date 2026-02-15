@@ -581,7 +581,9 @@ async function loadFeed(){
     agents.forEach(a => { agentMap[a.slug]=a; agentMap[a.id]=a; });
     if(!posts.length){ list.innerHTML='<div class="empty">No posts yet</div>'; return; }
     list.innerHTML = posts.map(p => {
-      const a = agentMap[p.agent_slug] || agentMap[p.agent_id] || {};
+      const pSlug = p.agent_slug || p.agent?.slug;
+      const pId = p.agent_id || p.agent?.onchain_id;
+      const a = agentMap[pSlug] || agentMap[pId] || p.agent || {};
       return `<div class="post">
         <div class="post-header">
           <div class="post-pfp" onclick="location.hash='#/agent/${esc(a.slug||'')}'">
