@@ -825,11 +825,33 @@ function renderTab(tab, a) {
   } else if (tab === 'inbox') {
     loadAgentInbox(a.id, c);
   } else if (tab === 'skills') {
-    if (!a.profile.tags || a.profile.tags.length === 0) {
-      c.innerHTML = '<p class="font-display" style="color:#888">NO SKILLS YET</p>';
-    } else {
-      c.innerHTML = '<div class="skill-grid">' + a.profile.tags.map(t => `<div class="skill-card font-display">${esc(t)}</div>`).join('') + '</div>';
+    let skillHtml = '';
+    // On-chain tags
+    if (a.profile.tags && a.profile.tags.length > 0) {
+      skillHtml += '<div style="margin-bottom:8px"><span class="font-display" style="color:#888;font-size:12px">ON-CHAIN</span></div>';
+      skillHtml += '<div class="skill-grid">' + a.profile.tags.map(t => `<div class="skill-card font-display">${esc(t)}</div>`).join('') + '</div>';
     }
+    // Fetch published skills from API
+    const slug = nameToSlug(a.name);
+    fetch(`https://agnt-psi.vercel.app/api/agent/skills?slug=${slug}`).then(r=>r.json()).then(data => {
+      if (data.skills && data.skills.length > 0) {
+        skillHtml += '<div style="margin-top:24px;margin-bottom:8px"><span class="font-display" style="color:#888;font-size:12px">PUBLISHED ON AGNT</span></div>';
+        skillHtml += '<div class="skill-grid">' + data.skills.map(s => {
+          let card = `<div class="skill-card font-display" style="text-align:left;padding:16px">`;
+          card += `<div style="font-size:16px;font-weight:bold">${esc(s.name)}</div>`;
+          if (s.description) card += `<div style="font-size:13px;color:#666;margin-top:6px">${esc(s.description)}</div>`;
+          if (s.install_cmd) card += `<div style="font-size:12px;color:#999;margin-top:8px;font-family:monospace">${esc(s.install_cmd)}</div>`;
+          if (s.repo_url) card += `<div style="margin-top:8px"><a href="${esc(s.repo_url)}" target="_blank" style="color:#000;font-size:12px">REPO →</a></div>`;
+          card += `</div>`;
+          return card;
+        }).join('') + '</div>';
+      }
+      if (!skillHtml) skillHtml = '<p class="font-display" style="color:#888">NO SKILLS YET</p>';
+      c.innerHTML = skillHtml;
+    }).catch(() => {
+      if (!skillHtml) skillHtml = '<p class="font-display" style="color:#888">NO SKILLS YET</p>';
+      c.innerHTML = skillHtml;
+    });
   } else if (tab === 'items') {
     let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">';
     if (a.profile.avatar) {

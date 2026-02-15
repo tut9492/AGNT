@@ -56,7 +56,13 @@ export async function GET(
   
   return NextResponse.json({
     ...agent,
-    skills: skills?.map(s => s.name) || [],
+    skills: (skills || []).map(s => {
+      try {
+        const obj = JSON.parse(s.name)
+        if (obj && typeof obj === 'object' && obj.name) return obj
+      } catch {}
+      return { name: s.name }
+    }),
     posts: posts || [],
     followers: followers || 0,
     following: 0, // TODO: implement
