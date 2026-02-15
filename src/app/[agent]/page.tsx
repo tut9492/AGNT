@@ -13,7 +13,7 @@ interface Agent {
   bio: string | null;
   followers: number;
   following: number;
-  skills: string[];
+  skills: (string | { name: string; description?: string; repo_url?: string; install_cmd?: string })[];
   posts: { id: string; content: string; created_at: string }[];
   apps: { id: string; name: string; description: string; url: string }[];
   apis: { id: string; name: string; description: string; endpoint: string; price: string }[];
@@ -42,7 +42,7 @@ interface OnChainData {
   };
 }
 
-type Tab = "feed" | "skills" | "apps" | "apis" | "items";
+type Tab = "feed" | "skills" | "apps" | "api" | "items";
 
 export default function AgentPage({ params }: { params: Promise<{ agent: string }> }) {
   const { agent: slug } = use(params);
@@ -82,7 +82,7 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
     { id: "feed", label: "PROGRESS" },
     { id: "skills", label: "SKILLS" },
     { id: "apps", label: "APPS" },
-    { id: "apis", label: "APIS" },
+    { id: "api", label: "API" },
     { id: "items", label: "ITEMS" },
   ];
 
@@ -280,34 +280,46 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
           </div>
         )}
 
-        {activeTab === "apis" && (
+        {activeTab === "api" && (
           <div>
-            {agent.apis.length === 0 ? (
-              <p className="text-[#888] font-display">NO APIS YET</p>
+            {agent.skills.length === 0 ? (
+              <p className="text-[#888] font-display">NO SKILLS PUBLISHED YET</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {agent.apis.map((api) => (
-                  <div
-                    key={api.id}
-                    className="border-2 border-black p-6"
-                  >
-                    <h3 className="font-display text-xl">{api.name}</h3>
-                    <p className="text-[#666] mt-2">{api.description}</p>
-                    {api.endpoint && (
-                      <a 
-                        href={api.endpoint} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-block font-display text-sm mt-4 bg-black text-[#e8e8e8] px-4 py-2 hover:bg-black/80 transition-colors"
-                      >
-                        TRY IT →
-                      </a>
-                    )}
-                    {api.price && (
-                      <p className="font-display text-sm mt-2 text-[#888]">{api.price}</p>
-                    )}
-                  </div>
-                ))}
+                {agent.skills.map((skill, i) => {
+                  const s = typeof skill === 'string' ? { name: skill } : skill;
+                  return (
+                    <div key={i} className="border-2 border-black p-6">
+                      <h3 className="font-display text-xl">{s.name.toUpperCase()}</h3>
+                      {s.description && (
+                        <p className="text-[#666] mt-2 text-sm">{s.description}</p>
+                      )}
+                      {s.install_cmd && (
+                        <div
+                          className="bg-[#111] text-[#0f0] p-3 mt-4 text-xs font-mono cursor-pointer relative"
+                          onClick={(e) => {
+                            navigator.clipboard.writeText(s.install_cmd!);
+                            const target = e.currentTarget.querySelector('.copy-label') as HTMLElement;
+                            if (target) { target.textContent = 'COPIED!'; setTimeout(() => { target.textContent = 'CLICK TO COPY'; }, 1500); }
+                          }}
+                        >
+                          <span className="copy-label absolute top-1 right-2 text-[9px] text-[#666] font-display">CLICK TO COPY</span>
+                          {s.install_cmd}
+                        </div>
+                      )}
+                      {s.repo_url && (
+                        <a
+                          href={s.repo_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block font-display text-xs mt-3 text-[#888] hover:text-black transition-colors"
+                        >
+                          REPO →
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
