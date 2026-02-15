@@ -14,7 +14,7 @@ const megaeth = defineChain({
 const client = createPublicClient({ chain: megaeth, transport: http() });
 
 const AGENT_CORE = "0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF" as const;
-const AGENT_PROFILE = "0xa42BE49eB52fBB8889cDdfDe8f78F5FE3cEF094E" as const;
+const AGENT_PROFILE = "0xc7fF3FF2a6053E132d942bd72539DFd69A16bAf7" as const;
 const WARREN_REGISTRY = "0xb7f14622ea97b26524BE743Ab6D9FA519Afbe756" as const;
 
 const coreAbi = [

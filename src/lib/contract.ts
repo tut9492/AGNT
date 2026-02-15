@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 
 // MegaETH (Chain ID: 4326)
 const AGENT_CORE_ADDRESS = '0x3D9BA898575Aa52E1ff367310eC6fb5e2570b3DF';
-const AGENT_PROFILE_ADDRESS = '0xa42BE49eB52fBB8889cDdfDe8f78F5FE3cEF094E';
+const AGENT_PROFILE_ADDRESS = '0xc7fF3FF2a6053E132d942bd72539DFd69A16bAf7';
 
 const AGENT_CORE_ABI = [
   'function getAgent(uint256 agentId) view returns (tuple(uint256 id, string name, address owner, address creator, uint256 bornAt, bool exists))',
