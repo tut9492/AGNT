@@ -589,8 +589,10 @@ async function loadSkillsDirectory() {
       return;
     }
     container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px">' + skills.map(s => {
-      const installHtml = s.install_cmd ? `<div style="background:#111;color:#0f0;padding:10px;margin-top:12px;font-size:11px;font-family:monospace;cursor:pointer;position:relative;white-space:pre-wrap;word-break:break-all" onclick="event.stopPropagation();navigator.clipboard.writeText(this.dataset.cmd).then(()=>{this.querySelector('.cp').textContent='COPIED!';setTimeout(()=>this.querySelector('.cp').textContent='CLICK TO COPY',1500)})" data-cmd="${esc(s.install_cmd)}"><span class="cp font-display" style="position:absolute;top:4px;right:6px;font-size:9px;color:#666">CLICK TO COPY</span>${esc(s.install_cmd)}</div>` : '';
-      const repoHtml = s.repo_url ? `<div style="margin-top:8px"><a href="${esc(s.repo_url)}" target="_blank" style="color:#888;font-size:12px" class="font-display">REPO →</a></div>` : '';
+      const dlCmd = s.has_package && s.slug ? `curl -sL https://agnt.social/api/skills/${s.slug}/download | tar xz -C ~/.openclaw/workspace/skills/${s.slug}/` : null;
+      const cmdToShow = dlCmd || s.install_cmd;
+      const installHtml = cmdToShow ? `<div style="background:#111;color:#0f0;padding:10px;margin-top:12px;font-size:11px;font-family:monospace;cursor:pointer;position:relative;white-space:pre-wrap;word-break:break-all" onclick="event.stopPropagation();navigator.clipboard.writeText(this.dataset.cmd).then(()=>{this.querySelector('.cp').textContent='COPIED!';setTimeout(()=>this.querySelector('.cp').textContent='CLICK TO COPY',1500)})" data-cmd="${esc(cmdToShow)}"><span class="cp font-display" style="position:absolute;top:4px;right:6px;font-size:9px;color:#666">CLICK TO COPY</span>${esc(cmdToShow)}</div>` : '';
+      const repoHtml = !s.has_package && s.repo_url ? `<div style="margin-top:8px"><a href="${esc(s.repo_url)}" target="_blank" style="color:#888;font-size:12px" class="font-display">REPO →</a></div>` : '';
       const downloadHtml = s.has_package && s.download_url ? `<div style="margin-top:12px;display:flex;gap:8px;align-items:center"><a href="${esc(s.download_url)}" style="background:#000;color:#fff;padding:8px 16px;text-decoration:none;font-size:12px" class="font-display">DOWNLOAD${s.version ? ' v'+esc(s.version) : ''}</a></div>` : '';
       const agentSlug = s.agent?.slug || '';
       const agentName = s.agent?.name || 'Unknown';
@@ -908,8 +910,10 @@ function renderTab(tab, a) {
           let card = `<div class="skill-card font-display" style="text-align:left;padding:16px">`;
           card += `<div style="font-size:16px;font-weight:bold">${esc(s.name)}</div>`;
           if (s.description) card += `<div style="font-size:13px;color:#666;margin-top:6px">${esc(s.description)}</div>`;
-          if (s.install_cmd) card += `<div style="font-size:12px;color:#999;margin-top:8px;font-family:monospace">${esc(s.install_cmd)}</div>`;
-          if (s.repo_url) card += `<div style="margin-top:8px"><a href="${esc(s.repo_url)}" target="_blank" style="color:#000;font-size:12px">REPO →</a></div>`;
+          const dlCmd2 = s.has_package && s.slug ? `curl -sL https://agnt.social/api/skills/${s.slug}/download | tar xz -C ~/.openclaw/workspace/skills/${s.slug}/` : null;
+          const cmd2 = dlCmd2 || s.install_cmd;
+          if (cmd2) card += `<div style="font-size:12px;color:#999;margin-top:8px;font-family:monospace">${esc(cmd2)}</div>`;
+          if (!s.has_package && s.repo_url) card += `<div style="margin-top:8px"><a href="${esc(s.repo_url)}" target="_blank" style="color:#000;font-size:12px">REPO →</a></div>`;
           card += `</div>`;
           return card;
         }).join('') + '</div>';
