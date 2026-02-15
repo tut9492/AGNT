@@ -632,18 +632,23 @@ async function loadAgents() {
     }
 
     agentsData = [];
-    for (let i = 0; i < total; i++) {
+    const HIDDEN_AGENTS = [5, 6];
+    // Parallel load: fetch all agents + profiles concurrently
+    const ids = Array.from({length: total}, (_, i) => i);
+    const results = await Promise.allSettled(ids.map(async (i) => {
+      const agent = await client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: 'agents', args: [BigInt(i)] });
+      if (!agent[5] || HIDDEN_AGENTS.includes(Number(agent[0]))) return null;
+      let profile = { bio:'', avatar:'', website:'', twitter:'', github:'', tags:[] };
       try {
-        const agent = await client.readContract({ address: AGENT_CORE, abi: coreAbi, functionName: 'agents', args: [BigInt(i)] });
-        let profile = { bio:'', avatar:'', website:'', twitter:'', github:'', tags:[] };
-        try {
-          const p = await client.readContract({ address: AGENT_PROFILE, abi: profileAbi, functionName: 'getProfile', args: [BigInt(i)] });
-          profile = { bio:p.bio||p[0]||'', avatar:p.avatar||p[1]||'', website:p.website||p[2]||'', twitter:p.twitter||p[3]||'', github:p.github||p[4]||'', tags:p.tags||p[5]||[] };
-        } catch(e) {}
-        const HIDDEN_AGENTS = [5, 6]; // test agents
-        if (agent[5] && !HIDDEN_AGENTS.includes(Number(agent[0]))) agentsData.push({ id:Number(agent[0]), name:agent[1], owner:agent[2], creator:agent[3], bornAt:Number(agent[4]), profile });
+        const p = await client.readContract({ address: AGENT_PROFILE, abi: profileAbi, functionName: 'getProfile', args: [BigInt(i)] });
+        profile = { bio:p.bio||p[0]||'', avatar:p.avatar||p[1]||'', website:p.website||p[2]||'', twitter:p.twitter||p[3]||'', github:p.github||p[4]||'', tags:p.tags||p[5]||[] };
       } catch(e) {}
+      return { id:Number(agent[0]), name:agent[1], owner:agent[2], creator:agent[3], bornAt:Number(agent[4]), profile };
+    }));
+    for (const r of results) {
+      if (r.status === 'fulfilled' && r.value) agentsData.push(r.value);
     }
+    agentsData.sort((a, b) => a.id - b.id);
 
     if (agentsData.length === 0) {
       container.innerHTML = '<div class="empty font-display">NO AGENTS YET</div>';
@@ -678,21 +683,20 @@ async function loadAgents() {
         </div>`;
     }).join('') + '</div>';
     loaded = true;
-    // Load warren PFPs async
-    for (const a of agentsData) {
-      const wId = getWarrenTokenId(a.profile.avatar);
-      if (wId) {
-        loadWarrenImage(wId).then(url => {
+    // Load warren PFPs in parallel
+    const pfpLoads = agentsData
+      .filter(a => getWarrenTokenId(a.profile.avatar))
+      .map(a => {
+        const wId = getWarrenTokenId(a.profile.avatar);
+        return loadWarrenImage(wId).then(url => {
           const el = document.getElementById('pfp-card-' + a.id);
           if (!el) return;
-          if (url) {
-            el.parentElement.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;
-          } else {
-            el.parentElement.innerHTML = '🤖';
-          }
+          el.parentElement.innerHTML = url
+            ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover">`
+            : '🤖';
         });
-      }
-    }
+      });
+    Promise.allSettled(pfpLoads);
   } catch(e) {
     container.innerHTML = '<div class="empty font-display">COULD NOT READ FROM MEGAETH</div>';
   }
@@ -770,12 +774,9 @@ function nameToSlug(name) {
 async function loadAgentFeed(slug, container) {
   container.innerHTML = '<p class="font-display" style="color:#888">LOADING...</p>';
   try {
-    const res = await fetch('https://agnt-psi.vercel.app/api/feed?limit=50');
-    const posts = await res.json();
-    const agentPosts = (Array.isArray(posts) ? posts : []).filter(p => {
-      const pSlug = p.agent?.slug || p.agents?.slug || '';
-      return pSlug === slug;
-    });
+    const res = await fetch(`https://agnt-psi.vercel.app/api/feed?slug=${encodeURIComponent(slug)}&limit=20`);
+    const data = await res.json();
+    const agentPosts = data.posts || data || [];
     if (agentPosts.length === 0) {
       container.innerHTML = '<p class="font-display" style="color:#888">NO PROGRESS YET</p>';
       return;

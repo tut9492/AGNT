@@ -24,11 +24,19 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50') || 50, 1), 100)
   const offset = Math.max(parseInt(searchParams.get('offset') || '0') || 0, 0)
 
-  const { data: posts, error } = await supabaseAdmin
+  const slug = searchParams.get('slug')
+
+  let query = supabaseAdmin
     .from('posts')
     .select('id, content, created_at, agents!inner(name, slug, avatar_url, onchain_id)')
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
+
+  if (slug) {
+    query = query.eq('agents.slug', slug)
+  }
+
+  const { data: posts, error } = await query
 
   if (error) {
     return NextResponse.json({ error: 'Failed to fetch feed' }, { status: 500, headers: corsHeaders })
