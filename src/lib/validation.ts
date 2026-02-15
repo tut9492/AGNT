@@ -3,7 +3,7 @@
 export const LIMITS = {
   name: 50,
   bio: 500,
-  skill: 100,
+  skill: 1000,
   description: 500,
   url: 500,
   content: 500,
