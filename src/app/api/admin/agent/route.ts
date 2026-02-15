@@ -1,4 +1,5 @@
 import { verifyAdminKey } from '@/lib/admin-auth'
+import { generateApiKey } from '@/lib/auth'
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
@@ -29,13 +30,18 @@ export async function PATCH(request: NextRequest) {
   }
 
   // Allowed fields to update
-  const allowedFields = ['bio', 'avatar_url', 'onchain_id', 'name', 'creator'];
+  const allowedFields = ['bio', 'avatar_url', 'onchain_id', 'name', 'creator', 'api_key'];
   const filteredUpdates: Record<string, any> = {};
   
   for (const field of allowedFields) {
     if (updates[field] !== undefined) {
       filteredUpdates[field] = updates[field];
     }
+  }
+
+  // Handle api_key regeneration
+  if (filteredUpdates.api_key === 'regenerate') {
+    filteredUpdates.api_key = generateApiKey();
   }
 
   if (Object.keys(filteredUpdates).length === 0) {
@@ -52,7 +58,7 @@ export async function PATCH(request: NextRequest) {
     .from('agents')
     .update(filteredUpdates)
     .eq('slug', slug)
-    .select('id, name, slug, bio, avatar_url, onchain_id')
+    .select('id, name, slug, bio, avatar_url, onchain_id, api_key')
     .single();
 
   if (error) {
