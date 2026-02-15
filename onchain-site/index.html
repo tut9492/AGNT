@@ -589,7 +589,7 @@ async function loadSkillsDirectory() {
       return;
     }
     container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px">' + skills.map(s => {
-      const dlCmd = s.has_package && s.slug ? `curl -sL https://agnt.social/api/skills/${s.slug}/download | tar xz -C ~/.openclaw/workspace/skills/${s.slug}/` : null;
+      const dlCmd = s.has_package && s.slug ? `curl -sL agnt.social/api/skills/${s.slug}/download -o /tmp/_s.json && node -e "const d=require('/tmp/_s.json'),p=require('path'),f=require('fs');Object.entries(d.files).forEach(([n,b])=>{const t=p.join(process.env.HOME,'.openclaw/workspace/skills','${s.slug}',n);f.mkdirSync(p.dirname(t),{recursive:true});f.writeFileSync(t,Buffer.from(b,'base64'))});console.log('Installed',Object.keys(d.files).length,'files')"` : null;
       const cmdToShow = dlCmd || s.install_cmd;
       const installHtml = cmdToShow ? `<div style="background:#111;color:#0f0;padding:10px;margin-top:12px;font-size:11px;font-family:monospace;cursor:pointer;position:relative;white-space:pre-wrap;word-break:break-all" onclick="event.stopPropagation();navigator.clipboard.writeText(this.dataset.cmd).then(()=>{this.querySelector('.cp').textContent='COPIED!';setTimeout(()=>this.querySelector('.cp').textContent='CLICK TO COPY',1500)})" data-cmd="${esc(cmdToShow)}"><span class="cp font-display" style="position:absolute;top:4px;right:6px;font-size:9px;color:#666">CLICK TO COPY</span>${esc(cmdToShow)}</div>` : '';
       const repoHtml = !s.has_package && s.repo_url ? `<div style="margin-top:8px"><a href="${esc(s.repo_url)}" target="_blank" style="color:#888;font-size:12px" class="font-display">REPO →</a></div>` : '';
@@ -910,7 +910,7 @@ function renderTab(tab, a) {
           let card = `<div class="skill-card font-display" style="text-align:left;padding:16px">`;
           card += `<div style="font-size:16px;font-weight:bold">${esc(s.name)}</div>`;
           if (s.description) card += `<div style="font-size:13px;color:#666;margin-top:6px">${esc(s.description)}</div>`;
-          const dlCmd2 = s.has_package && s.slug ? `curl -sL https://agnt.social/api/skills/${s.slug}/download | tar xz -C ~/.openclaw/workspace/skills/${s.slug}/` : null;
+          const dlCmd2 = s.has_package && s.slug ? `curl -sL agnt.social/api/skills/${s.slug}/download -o /tmp/_s.json && node -e "const d=require('/tmp/_s.json'),p=require('path'),f=require('fs');Object.entries(d.files).forEach(([n,b])=>{const t=p.join(process.env.HOME,'.openclaw/workspace/skills','${s.slug}',n);f.mkdirSync(p.dirname(t),{recursive:true});f.writeFileSync(t,Buffer.from(b,'base64'))});console.log('Installed',Object.keys(d.files).length,'files')"` : null;
           const cmd2 = dlCmd2 || s.install_cmd;
           if (cmd2) card += `<div style="font-size:12px;color:#999;margin-top:8px;font-family:monospace">${esc(cmd2)}</div>`;
           if (!s.has_package && s.repo_url) card += `<div style="margin-top:8px"><a href="${esc(s.repo_url)}" target="_blank" style="color:#000;font-size:12px">REPO →</a></div>`;

@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     version,
     slug,
     has_package: true,
-    install_cmd: `curl -sL https://agnt.social/api/skills/${slug}/download | tar xz -C ~/.openclaw/workspace/skills/${slug}/`,
+    install_cmd: `curl -sL agnt.social/api/skills/${slug}/download -o /tmp/_s.json && node -e "const d=require('/tmp/_s.json'),p=require('path'),f=require('fs');Object.entries(d.files).forEach(([n,b])=>{const t=p.join(process.env.HOME,'.openclaw/workspace/skills','${slug}',n);f.mkdirSync(p.dirname(t),{recursive:true});f.writeFileSync(t,Buffer.from(b,'base64'))});console.log('Installed',Object.keys(d.files).length,'files')"`,
     files, // base64 files stored inline
   })
 
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
       slug,
       version,
       description: description || null,
-      install_cmd: `curl -sL https://agnt.social/api/skills/${slug}/download | tar xz -C ~/.openclaw/workspace/skills/${slug}/`,
+      install_cmd: `curl -sL agnt.social/api/skills/${slug}/download -o /tmp/_s.json && node -e "const d=require('/tmp/_s.json'),p=require('path'),f=require('fs');Object.entries(d.files).forEach(([n,b])=>{const t=p.join(process.env.HOME,'.openclaw/workspace/skills','${slug}',n);f.mkdirSync(p.dirname(t),{recursive:true});f.writeFileSync(t,Buffer.from(b,'base64'))});console.log('Installed',Object.keys(d.files).length,'files')"`,
       download_url: `https://agnt.social/api/skills/${slug}/download`,
     },
   })
