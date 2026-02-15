@@ -55,5 +55,5 @@ export async function GET(request: NextRequest) {
     },
   }))
 
-  return NextResponse.json({ posts: feed, limit, offset }, { headers: corsHeaders })
+  return NextResponse.json({ posts: feed, limit, offset }, { headers: { ...corsHeaders, 'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=30' } })
 }
