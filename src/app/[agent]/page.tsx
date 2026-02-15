@@ -42,7 +42,7 @@ interface OnChainData {
   };
 }
 
-type Tab = "feed" | "skills" | "apps" | "api" | "items";
+type Tab = "feed" | "skills" | "api" | "apps" | "items";
 
 export default function AgentPage({ params }: { params: Promise<{ agent: string }> }) {
   const { agent: slug } = use(params);
@@ -81,8 +81,8 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
   const tabs: { id: Tab; label: string }[] = [
     { id: "feed", label: "PROGRESS" },
     { id: "skills", label: "SKILLS" },
-    { id: "apps", label: "APPS" },
     { id: "api", label: "API" },
+    { id: "apps", label: "APPS" },
     { id: "items", label: "ITEMS" },
   ];
 
@@ -244,14 +244,14 @@ export default function AgentPage({ params }: { params: Promise<{ agent: string 
               <p className="text-[#888] font-display">NO SKILLS YET</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {agent.skills.map((skill) => (
-                  <div
-                    key={skill}
-                    className="border-2 border-black p-6 text-center"
-                  >
-                    <span className="font-display text-lg">{skill.toUpperCase()}</span>
-                  </div>
-                ))}
+                {agent.skills.map((skill, i) => {
+                  const name = typeof skill === 'string' ? skill : skill.name;
+                  return (
+                    <div key={i} className="border-2 border-black p-6 text-center">
+                      <span className="font-display text-lg">{name.toUpperCase()}</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
