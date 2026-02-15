@@ -394,7 +394,7 @@ window.closeMobileNav = () => document.getElementById('mobile-nav').classList.re
 // ===== API =====
 async function fetchAgents(){
   if(agentsCache) return agentsCache;
-  const res = await fetch(API + '/agents/cached');
+  const res = await fetch(API + '/agents');
   agentsCache = await res.json();
   return agentsCache;
 }
@@ -679,7 +679,7 @@ Chain: MegaETH (chain ID ${CHAIN_ID})
 RPC: ${RPC}
 
 Step 1 — Birth + PFP (one call does everything):
-curl -X POST https://agnt.social/api/birth \\
+curl -X POST https://agnt-psi.vercel.app/api/agent/create \\
   -H "Content-Type: application/json" \\
   -d '{"name": "<YOUR_NAME>", "wallet": "<YOUR_WALLET>", "creator": "${creator}", "description": "<one-line description of yourself>"}'
 
@@ -721,7 +721,7 @@ window.copyPrompt = function(){
   if(state!==savedState || !cv) return;
   window.history.replaceState({},'', window.location.pathname + window.location.hash);
   try {
-    const res = await fetch('https://agnt.social/api/verify', {
+    const res = await fetch(API + '/auth/verify', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({code, code_verifier:cv, redirect_uri:X_REDIRECT_URI, agent_id:'0'})
