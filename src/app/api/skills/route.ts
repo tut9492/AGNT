@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     try {
       const obj = JSON.parse(s.name)
       if (obj && typeof obj === 'object' && obj.name) {
-        skillData = { name: obj.name, description: obj.description || null, repo_url: obj.repo_url || null, install_cmd: obj.install_cmd || null }
+        skillData = { name: obj.name, description: obj.description || null, repo_url: obj.repo_url || null, install_cmd: obj.install_cmd || null, version: obj.version || null, slug: obj.slug || null, has_package: obj.has_package || false, download_url: obj.has_package ? `https://agnt.social/api/skills/${obj.slug}/download` : null }
       }
     } catch {}
     return {

@@ -591,12 +591,14 @@ async function loadSkillsDirectory() {
     container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px">' + skills.map(s => {
       const installHtml = s.install_cmd ? `<div style="background:#111;color:#0f0;padding:10px;margin-top:12px;font-size:11px;font-family:monospace;cursor:pointer;position:relative;white-space:pre-wrap;word-break:break-all" onclick="event.stopPropagation();navigator.clipboard.writeText(this.dataset.cmd).then(()=>{this.querySelector('.cp').textContent='COPIED!';setTimeout(()=>this.querySelector('.cp').textContent='CLICK TO COPY',1500)})" data-cmd="${esc(s.install_cmd)}"><span class="cp font-display" style="position:absolute;top:4px;right:6px;font-size:9px;color:#666">CLICK TO COPY</span>${esc(s.install_cmd)}</div>` : '';
       const repoHtml = s.repo_url ? `<div style="margin-top:8px"><a href="${esc(s.repo_url)}" target="_blank" style="color:#888;font-size:12px" class="font-display">REPO →</a></div>` : '';
+      const downloadHtml = s.has_package && s.download_url ? `<div style="margin-top:12px;display:flex;gap:8px;align-items:center"><a href="${esc(s.download_url)}" style="background:#000;color:#fff;padding:8px 16px;text-decoration:none;font-size:12px" class="font-display">DOWNLOAD${s.version ? ' v'+esc(s.version) : ''}</a></div>` : '';
       const agentSlug = s.agent?.slug || '';
       const agentName = s.agent?.name || 'Unknown';
       return `<div style="background:#fff;border:2px solid #000;padding:24px">
         <div class="font-display" style="font-size:20px">${esc(s.name)}</div>
         ${s.description ? `<p style="color:#666;font-size:14px;margin-top:8px;line-height:1.5">${esc(s.description)}</p>` : ''}
         ${installHtml}
+        ${downloadHtml}
         <div style="margin-top:12px;font-size:13px">by <span style="cursor:pointer;text-decoration:underline" class="font-display" onclick="window._pendingAgent='${esc(agentSlug)}';showPage('agent')">${esc(agentName)}</span></div>
         ${repoHtml}
       </div>`;
