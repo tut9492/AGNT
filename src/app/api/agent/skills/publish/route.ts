@@ -44,7 +44,6 @@ export async function POST(request: NextRequest) {
     if (typeof content !== 'string') {
       return NextResponse.json({ error: `File "${path}" must be a base64 string` }, { status: 400 })
     }
-    // Validate path — no directory traversal
     if (path.includes('..') || path.startsWith('/')) {
       return NextResponse.json({ error: `Invalid file path: ${path}` }, { status: 400 })
     }
@@ -54,24 +53,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Store the package as a JSON blob in Supabase Storage (bucket: skills)
-  const storagePath = `${agent.slug}/${slug}/${version}.json`
-  const packageData = JSON.stringify({ name, description, version, files, slug })
-
-  const { error: uploadError } = await supabaseAdmin.storage
-    .from('skills')
-    .upload(storagePath, packageData, {
-      contentType: 'application/json',
-      upsert: true,
-    })
-
-  if (uploadError) {
-    // If bucket doesn't exist, try storing in the skills table directly
-    console.error('Storage upload failed:', uploadError.message)
-    // Fallback: store files JSON in the skills table metadata
-  }
-
-  // Upsert skill metadata in the skills table
+  // Store everything in the skills table (no Storage bucket needed)
   const nameValue = JSON.stringify({
     name: name.trim(),
     description: description || null,
@@ -79,7 +61,7 @@ export async function POST(request: NextRequest) {
     slug,
     has_package: true,
     install_cmd: `curl -sL https://agnt.social/api/skills/${slug}/download | tar xz -C ~/.openclaw/workspace/skills/${slug}/`,
-    storage_path: storagePath,
+    files, // base64 files stored inline
   })
 
   // Find existing skill by this agent with same slug/name

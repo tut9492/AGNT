@@ -28,14 +28,14 @@ export async function GET(
   // Find the skill in the database
   const { data: skills } = await supabaseAdmin
     .from('skills')
-    .select('id, name, agent_id, agents!inner(slug)')
+    .select('id, name')
     .order('id', { ascending: false })
 
-  // Find skill matching this slug
+  // Find skill matching this slug with a package
   const skill = (skills || []).find((s: any) => {
     try {
       const obj = JSON.parse(s.name)
-      return obj.slug === slug && obj.has_package
+      return obj.slug === slug && obj.has_package && obj.files
     } catch {
       return false
     }
@@ -46,20 +46,7 @@ export async function GET(
   }
 
   const meta = JSON.parse(skill.name)
-  const agentSlug = (skill as any).agents?.slug
-
-  // Try to fetch from Supabase Storage first
-  const storagePath = meta.storage_path || `${agentSlug}/${slug}/${meta.version}.json`
-  const { data: fileData, error: dlError } = await supabaseAdmin.storage
-    .from('skills')
-    .download(storagePath)
-
-  if (dlError || !fileData) {
-    return NextResponse.json({ error: 'Package not found in storage' }, { status: 404, headers: corsHeaders })
-  }
-
-  const packageJson = JSON.parse(await fileData.text())
-  const files: Record<string, string> = packageJson.files
+  const files: Record<string, string> = meta.files
 
   // Build tar.gz in memory
   const pack = tar.pack()
